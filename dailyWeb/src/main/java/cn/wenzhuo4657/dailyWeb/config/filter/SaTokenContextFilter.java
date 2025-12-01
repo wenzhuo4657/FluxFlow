@@ -1,4 +1,4 @@
-package cn.wenzhuo4657.dailyWeb.filter;
+package cn.wenzhuo4657.dailyWeb.config.filter;
 
 import cn.dev33.satoken.servlet.util.SaTokenContextJakartaServletUtil;
 import cn.dev33.satoken.util.SaTokenConsts;

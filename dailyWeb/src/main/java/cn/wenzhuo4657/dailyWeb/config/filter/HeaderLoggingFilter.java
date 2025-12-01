@@ -1,4 +1,4 @@
-package cn.wenzhuo4657.dailyWeb.filter;
+package cn.wenzhuo4657.dailyWeb.config.filter;
 
 
 import jakarta.servlet.FilterChain;
