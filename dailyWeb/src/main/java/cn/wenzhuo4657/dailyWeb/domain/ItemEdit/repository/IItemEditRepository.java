@@ -23,4 +23,6 @@ public interface IItemEditRepository {
     boolean isPermissions(Long docsId, Long userId);
 
     boolean updateItem(Long index, String content);
+
+    void deleteItem(Long index);
 }

@@ -74,5 +74,8 @@ public class ItemEditRepository implements IItemEditRepository {
         docsItemDao.update(item);
     }
 
-
+    @Override
+    public void deleteItem(Long index) {
+        docsItemDao.delete(index);
+    }
 }

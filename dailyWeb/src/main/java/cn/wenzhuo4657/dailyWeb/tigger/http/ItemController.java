@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +27,7 @@ public class ItemController {
 
     @PostMapping("/get")
     public ResponseEntity<?> getItems(@Valid @RequestBody GetItemsRequest params) {
+//        todo 在目前的逻辑里，前端的item数据展示当中title是唯一的，似乎将其作为一个单独的数据项更好
 
         Long docsId = Long.valueOf(params.getDocsId());
         int type = params.getType();
@@ -67,6 +65,11 @@ public class ItemController {
         body.setIndex(Long.valueOf(request.getIndex()));
         body.setContent(request.getContent());
         boolean ok = itemEditService.updateItem(body);
+        return ResponseEntity.ok(Map.of("success", ok));
+    }
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteItem(@RequestParam("index") Long index) {
+        boolean ok = itemEditService.deleteItem(index);
         return ResponseEntity.ok(Map.of("success", ok));
     }
 

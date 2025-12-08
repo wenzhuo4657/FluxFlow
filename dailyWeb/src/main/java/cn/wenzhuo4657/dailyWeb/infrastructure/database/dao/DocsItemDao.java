@@ -75,5 +75,7 @@ public interface DocsItemDao {
     List<DocsItem> queryByDocsId(Long docsId);
 
     DocsItem queryByIndex(@Param("index") Long id);
+
+    void delete(@Param("index")Long index);
 }
 

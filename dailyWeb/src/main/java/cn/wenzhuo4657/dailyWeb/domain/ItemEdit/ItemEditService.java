@@ -44,14 +44,11 @@ public  class ItemEditService implements baseService,PlanService {
                 throw  new AppException(ResponseCode.NOT_PERMISSIONS);
             }
             String filed = strategy.toFiled(dto.getType());
-
             DocsItem item=new DocsItem();
             item.setDocsId(dto.getDocsId());
             item.setItemField(filed);
             item.setItemContent("");
             item.setIndex(SnowflakeUtils.getSnowflakeId());
-
-
             return mdRepository.addItem(item);
 
         } catch (ClassNotFoundException e) {
@@ -96,6 +93,12 @@ public  class ItemEditService implements baseService,PlanService {
         }
 
 
+    }
+
+    @Override
+    public boolean deleteItem(long index) {
+        mdRepository.deleteItem(index);
+        return true;
     }
 
 

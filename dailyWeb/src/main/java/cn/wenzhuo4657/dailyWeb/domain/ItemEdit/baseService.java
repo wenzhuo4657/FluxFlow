@@ -35,5 +35,5 @@ public interface baseService {
      */
     List<ItemDto> getItem(QueryItemDto dto);
 
-//    todo 提供删除item能力
+    boolean deleteItem(long index);
 }
