@@ -78,7 +78,7 @@ public  class ItemEditService implements baseService,PlanService {
 
     @Override
     public boolean updateItem(UpdateItemDto dto) {
-//        todo 部分类型可以用，部分类型不能用
+//        todo 部分类型可以用，部分类型不能用，
             return mdRepository.updateItem(dto.getIndex(),dto.getContent());
     }
 

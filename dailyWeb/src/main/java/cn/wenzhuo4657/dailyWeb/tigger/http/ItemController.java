@@ -27,8 +27,6 @@ public class ItemController {
 
     @PostMapping("/get")
     public ResponseEntity<?> getItems(@Valid @RequestBody GetItemsRequest params) {
-//        todo 在目前的逻辑里，前端的item数据展示当中title是唯一的，似乎将其作为一个单独的数据项更好
-
         Long docsId = Long.valueOf(params.getDocsId());
         int type = params.getType();
 

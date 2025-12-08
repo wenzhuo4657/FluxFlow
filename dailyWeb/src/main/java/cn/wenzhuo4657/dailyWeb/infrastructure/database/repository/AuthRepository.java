@@ -60,7 +60,6 @@ public class AuthRepository  implements IAuthRepository {
 
 
     private void initUser(User user){
-//       todo  1,基本文档初始化,所有类型文档都创建一个     2，目前没有处理多文档逻辑，所以全靠初始化
         List<DocsType> all = docsTypeDao.getAll();
         for (DocsType docsType : all){
             Docs docs = new Docs();

@@ -1,4 +1,4 @@
-package cn.wenzhuo4657.dailyWeb.domain.system;
+package cn.wenzhuo4657.dailyWeb.tigger.http;
 
 
 import cn.wenzhuo4657.dailyWeb.Main;
@@ -15,27 +15,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @RestController(value = "system")
-public class systemController {
+public class SystemController {
 
 
-// todo 根据tab进行数据库演变导入
 
-    private static final Logger log = LoggerFactory.getLogger(systemController.class);
+
+    private static final Logger log = LoggerFactory.getLogger(SystemController.class);
 
     @Autowired
     private SystemService systemService;
