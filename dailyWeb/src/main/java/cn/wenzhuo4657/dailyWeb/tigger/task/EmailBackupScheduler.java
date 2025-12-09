@@ -23,7 +23,6 @@ public class EmailBackupScheduler {
 
     /**
      * 定时邮件备份，每天0（UTC+8）点执行
-     * 2，（可选）tg通知配置，执行失败进行通知
      */
     @Scheduled(cron = "0 0 0 * * ?",zone = "Asia/Shanghai")
     public void backup() {

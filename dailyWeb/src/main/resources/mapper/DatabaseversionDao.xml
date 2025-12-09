@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DatabaseversionDao">
+
+    <resultMap type="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Databaseversion" id="DatabaseversionMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="version" column="version" jdbcType="VARCHAR"/>
+        <result property="date" column="date" jdbcType="VARCHAR"/>
+        <result property="log" column="log" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DatabaseversionMap">
+        select
+id, version, date, log
+        from dataBaseVersion
+        where id = #{id}
+    </select>
+
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from dataBaseVersion
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="version != null and version != ''">
+                and version = #{version}
+            </if>
+            <if test="date != null and date != ''">
+                and date = #{date}
+            </if>
+            <if test="log != null and log != ''">
+                and log = #{log}
+            </if>
+        </where>
+    </select>
+    <select id="getVersion" resultType="java.lang.String">
+        select version
+        from dataBaseVersion
+        order by id desc limit 1
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into dataBaseVersion(version, date, log)
+        values (#{version}, #{date}, #{log})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into dataBaseVersion(version, date, log)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.version}, #{entity.date}, #{entity.log})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into dataBaseVersion(version, date, log)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.version}, #{entity.date}, #{entity.log})
+        </foreach>
+        on duplicate key update
+version = values(version),
+date = values(date),
+log = values(log)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update dataBaseVersion
+        <set>
+            <if test="version != null and version != ''">
+                version = #{version},
+            </if>
+            <if test="date != null and date != ''">
+                date = #{date},
+            </if>
+            <if test="log != null and log != ''">
+                log = #{log},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from dataBaseVersion where id = #{id}
+    </delete>
+
+</mapper>
+

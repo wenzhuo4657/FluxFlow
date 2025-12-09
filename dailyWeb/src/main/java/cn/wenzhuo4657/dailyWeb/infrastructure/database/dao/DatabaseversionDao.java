@@ -1,16 +1,16 @@
 package cn.wenzhuo4657.dailyWeb.infrastructure.database.dao;
 
-import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Notifier;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Databaseversion;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * (Notifier)表数据库访问层
+ * (Databaseversion)表数据库访问层
  *
  * @author makejava
- * @since 2025-11-10 18:17:09
+ * @since 2025-12-09 10:22:29
  */
-public interface NotifierDao {
+public interface DatabaseversionDao {
 
     /**
      * 通过ID查询单条数据
@@ -18,49 +18,49 @@ public interface NotifierDao {
      * @param id 主键
      * @return 实例对象
      */
-    Notifier queryById(Long id);
+    Databaseversion queryById(Integer id);
 
   
     /**
      * 统计总行数
      *
-     * @param notifier 查询条件
+     * @param databaseversion 查询条件
      * @return 总行数
      */
-    long count(Notifier notifier);
+    long count(Databaseversion databaseversion);
 
     /**
      * 新增数据
      *
-     * @param notifier 实例对象
+     * @param databaseversion 实例对象
      * @return 影响行数
      */
-    int insert(Notifier notifier);
+    int insert(Databaseversion databaseversion);
 
     /**
      * 批量新增数据（MyBatis原生foreach方法）
      *
-     * @param entities List<Notifier> 实例对象列表
+     * @param entities List<Databaseversion> 实例对象列表
      * @return 影响行数
      */
-    int insertBatch(@Param("entities") List<Notifier> entities);
+    int insertBatch(@Param("entities") List<Databaseversion> entities);
 
     /**
      * 批量新增或按主键更新数据（MyBatis原生foreach方法）
      *
-     * @param entities List<Notifier> 实例对象列表
+     * @param entities List<Databaseversion> 实例对象列表
      * @return 影响行数
      * @throws org.springframework.jdbc.BadSqlGrammarException 入参是空List的时候会抛SQL语句错误的异常，请自行校验入参
      */
-    int insertOrUpdateBatch(@Param("entities") List<Notifier> entities);
+    int insertOrUpdateBatch(@Param("entities") List<Databaseversion> entities);
 
     /**
      * 修改数据
      *
-     * @param notifier 实例对象
+     * @param databaseversion 实例对象
      * @return 影响行数
      */
-    int update(Notifier notifier);
+    int update(Databaseversion databaseversion);
 
     /**
      * 通过主键删除数据
@@ -68,10 +68,12 @@ public interface NotifierDao {
      * @param id 主键
      * @return 影响行数
      */
-    int deleteById(Long id);
+    int deleteById(Integer id);
 
-    List<Notifier> querByUserId(@Param("userId") Long userId);
-
-    String queryByNotifyId(@Param("notifyId") Long notifyId);
+    /**
+     * 获取数据库中最新的数据库版本号（查询原则： id最大）
+     * @return
+     */
+    String getVersion();
 }
 

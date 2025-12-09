@@ -13,10 +13,10 @@ CREATE INDEX IF NOT EXISTS docs_item_index_PK__IDX ON docs_item ("index",docs_id
 -- docs_type definition
 
 CREATE TABLE IF NOT EXISTS "docs_type" (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    des TEXT ,
-    type_id INTEGER);
+                                           id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                           name TEXT NOT NULL,
+                                           des TEXT ,
+                                           type_id INTEGER);
 
 CREATE INDEX IF NOT EXISTS docs_type_name_IDX ON docs_type (name);
 CREATE UNIQUE INDEX IF NOT EXISTS docs_type_type_id_IDX ON docs_type (type_id);
@@ -44,8 +44,9 @@ CREATE INDEX IF NOT EXISTS user_auth_user_id_IDX ON user_auth (user_id,docs_type
 
 
 
+
 -- dataBaseVersion definition
 
 CREATE TABLE  IF NOT EXISTS "dataBaseVersion" (
-                                   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+                                                  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
     , version TEXT NOT NULL, date TEXT NOT NULL, log TEXT);
