@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Controller("item")
 @ResponseBody
 @Validated
-@RequestMapping("/item")
+@RequestMapping("/api/item")
 public class ItemController {
 
     Logger log= LoggerFactory.getLogger(ItemController.class);

@@ -28,7 +28,8 @@ import java.time.format.DateTimeFormatter;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-@RestController(value = "system")
+@RestController(value = "/system")
+@RequestMapping("/api")
 public class SystemController {
 
 

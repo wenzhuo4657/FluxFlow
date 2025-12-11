@@ -24,10 +24,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Controller(value = "types")
+@Controller(value = "/types")
 @ResponseBody
 @Validated
-@RequestMapping(value = "/types")
+@RequestMapping(value = "/api/types")
 public class TypeController {
 
     private static final Logger log = LoggerFactory.getLogger(TypeController.class);

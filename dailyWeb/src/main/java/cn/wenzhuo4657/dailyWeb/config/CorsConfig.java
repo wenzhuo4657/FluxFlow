@@ -5,6 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -17,6 +18,23 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .maxAge(3600);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 配置静态资源映射到assets目录
+        registry.addResourceHandler("/assets/**")
+                .addResourceLocations("classpath:/static/assets/");
+
+        registry.addResourceHandler("auth/assets/**")
+                .addResourceLocations("classpath:/static/assets/");
+
+        registry.addResourceHandler("/home/assets/**")
+                .addResourceLocations("classpath:/static/assets/");
+
+        registry.addResourceHandler("/login/assets/**")
+                .addResourceLocations("classpath:/static/assets/");
+
     }
 
     @Override
@@ -41,9 +59,15 @@ public class CorsConfig implements WebMvcConfigurer {
                 }))
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/oauth/**",
-                        "/error",
-                        "/favicon.ico"
+                        "/api/oauth/**",
+                        "/api/error",
+                        "/",
+                        "/index.html",
+                        "/login/**",
+                        "/home/**",
+                        "/auth/**",
+                        "/assets/**",
+                        "/favicon.jpg"
                 );
     }
 }

@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Controller(value = "oauth")
-@RequestMapping(value = "/oauth")
+@RequestMapping(value = "/api/oauth")
 @ResponseBody
 public class AuthController {
     @Autowired(required = false)
