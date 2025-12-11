@@ -14,8 +14,5 @@ github:
   client-secret:  ${GITHUB_CLIENT_SECRET}
   redirect-uri: ${domain.url}/api/oauth/callback/github
 
-# NotifierBot 配置
-notifierbot:
-  # NotifierBot API 基础 URL，可通过环境变量 NOTIFIERBOT_BASE_URL 覆盖
-  base-url: ${NOTIFIERBOT_BASE_URL:http://localhost:8089}
+
 

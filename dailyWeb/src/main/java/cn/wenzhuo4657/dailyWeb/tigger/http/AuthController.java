@@ -43,12 +43,20 @@ public class AuthController {
 
     Logger log= org.slf4j.LoggerFactory.getLogger(AuthController.class);
 
+    @Value("${github.client-id}")
+    private String clientId;
+    @Value("${github.client-secret}")
+    private String clientSecret;
+    @Value("${github.redirect-uri}")
+    private String redirectUri;
+
     /**
      * 重定向到 GitHub 授权页面
      */
     @GetMapping("/render/github")
     public void renderGithub(HttpServletResponse response)  {
         try {
+            log.info("clientId: {} ,clientSecret: {} , redirectUri: {}", clientId, clientSecret, redirectUri);
             if (authRequest == null) {
                 response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                 response.getWriter().write("GitHub OAuth not configured");

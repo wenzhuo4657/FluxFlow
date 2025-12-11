@@ -46,6 +46,7 @@ public class Main  implements ApplicationRunner {
         SpringApplication.run(Main.class, args);
         log.info("启动成功");
         log.info("Sa-Token 配置如下：" + SaManager.getConfig());
+
     }
 
 

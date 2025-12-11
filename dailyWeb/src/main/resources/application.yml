@@ -61,3 +61,8 @@ email:
 
 
 
+# 在一键脚本当中，通知器项目需要作为常用项目部署在同一个主机里，但是个人使用时，需要单独部署，具体来说，在脚本当中应提供变量指定，
+# NotifierBot 配置
+notifierbot:
+  # NotifierBot API 基础 URL，可通过环境变量 NOTIFIERBOT_BASE_URL 覆盖
+  base-url: ${NOTIFIERBOT_BASE_URL:http://localhost:8089}
