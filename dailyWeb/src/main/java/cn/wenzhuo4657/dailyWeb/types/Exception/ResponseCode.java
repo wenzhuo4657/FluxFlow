@@ -16,7 +16,8 @@ public enum ResponseCode {
     NOT_PERMISSIONS(403,"文档存在，但用户权限不足"),
     programmingError(500,"未知错误" ),
     NOT_LOGIN(401,"未登录、token无效，请重新登录" )//401不可重复，前端用于判断是否需要跳转登录页面
-    ;
+    ,
+    DATABASE_VERSION_ERROR(501,"传入数据库版本过高" );
 
     private String info;
     private Integer code;

@@ -10,10 +10,10 @@ public interface SystemService {
  * 重置数据库
  * @param tempFile 临时数据库文件
  */
-    void reset(File tempFile);
+    boolean reset(File tempFile);
     /**
      * 导出数据库文件至指定路径
      * @param tempBackup 临时数据库路径
      */
-    void export(Path tempBackup) throws SQLException;
+    boolean export(Path tempBackup) throws SQLException;
 }

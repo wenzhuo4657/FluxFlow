@@ -128,7 +128,9 @@ public class AuthController {
     public ResponseEntity<Boolean> logout() {
         try {
             // 执行登出逻辑
+            log.info("用户 {} 退出登录", AuthUtils.getLoginId());
             StpUtil.logout();
+            log.info("用户 {} 登出成功", AuthUtils.getLoginId());
             return ResponseEntity.ok(true);
         } catch (Exception e) {
             return ResponseEntity.ok(false);

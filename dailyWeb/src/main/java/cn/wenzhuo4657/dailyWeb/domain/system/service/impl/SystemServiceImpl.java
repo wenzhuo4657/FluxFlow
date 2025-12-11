@@ -42,7 +42,7 @@ public class SystemServiceImpl implements SystemService {
     ReentrantLock block=new ReentrantLock(true);
 
     @Override
-    public void reset(File tempFile) {
+    public boolean reset(File tempFile) {
         String mainDatabaseVersion  = systemRepository.getDatabaseVersion();
 
 
@@ -75,7 +75,7 @@ public class SystemServiceImpl implements SystemService {
                 DataBaseVersionVo main = DataBaseVersionVo.getEnumByVersion(mainDatabaseVersion);
                 DataBaseVersionVo temp = DataBaseVersionVo.getEnumByVersion(tempDatabaseVersion);
                 if (main.getCode()<temp.getCode()){
-                    return;
+                    throw  new AppException(ResponseCode.DATABASE_VERSION_ERROR);
                 }else if (main.getCode()>temp.getCode()){
 //                    执行版本升级操作
 //                    todo 等待实现
@@ -116,11 +116,14 @@ public class SystemServiceImpl implements SystemService {
         }
 
 
+        return  true;
+
+
     }
 
 
     @Override
-    public void export(Path tempBackup) throws SQLException {
+    public boolean export(Path tempBackup) throws SQLException {
         try {
             block.tryLock(10, TimeUnit.SECONDS);
             Connection connection = dataSource.getConnection();
@@ -132,9 +135,12 @@ public class SystemServiceImpl implements SystemService {
 
         }catch (InterruptedException e){
             log.error("排队超时",e);
+            return  false;
         }finally {
             block.unlock();
         }
+
+        return  true;
 
     }
 }

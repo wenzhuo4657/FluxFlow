@@ -11,6 +11,8 @@ import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.DocsResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.TypeResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,12 +30,14 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/types")
 public class TypeController {
 
+    private static final Logger log = LoggerFactory.getLogger(TypeController.class);
     @Autowired
     private ITypesService typesService;
 
 
     @RequestMapping(value = "/getAllTypes")
     public ResponseEntity<ApiResponse<List<TypeResponse>>> getAllTypes() {
+        log.info("userID:{}", AuthUtils.getLoginId());
         List<TypeDto> typeDtos = typesService.getAllTypes(AuthUtils.getLoginId());
 
 
@@ -44,12 +48,15 @@ public class TypeController {
         ApiResponse<List<TypeResponse>> listApiResponse = ApiResponse.success();
         listApiResponse.setData(collect);
 
+        log.info("userID:{}getAllTypes response:{}", AuthUtils.getLoginId(),collect);
         return ResponseEntity.ok(listApiResponse);
     }
 
 
     @RequestMapping(value = "/getContentIdsByTypes")
     public ResponseEntity<ApiResponse<List<DocsResponse>>> getTypesWithItems(@Valid @RequestBody GetContentIdsByTypesRequest request) {
+
+        log.info("userID:{} getContentIdsByTypes request:{}", AuthUtils.getLoginId(),request);
         Long typeId = Long.valueOf(request.getId());
         List<DocsDto> docsDtos = typesService.getContentNameIdById(typeId, AuthUtils.getLoginId());
         List<DocsResponse> docsResponses = docsDtos.stream()
@@ -58,6 +65,7 @@ public class TypeController {
         ApiResponse<List<DocsResponse>> listApiResponse = ApiResponse.success();
         listApiResponse.setData(docsResponses);
 
+        log.info("userID:{}getContentIdsByTypes response:{}", AuthUtils.getLoginId(),docsResponses);
         return ResponseEntity.ok(listApiResponse);
     }
 

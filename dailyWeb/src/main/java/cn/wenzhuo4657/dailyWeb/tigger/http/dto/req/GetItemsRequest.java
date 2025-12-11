@@ -36,4 +36,12 @@ public class GetItemsRequest {
     public void setType(int type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "GetItemsRequest{" +
+                "docsId='" + docsId + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }

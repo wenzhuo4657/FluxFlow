@@ -1,0 +1,75 @@
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+<property name="console" value="==\n[%-5level] %red(%d{HH:mm}) Thread:[%thread]  Method:%green(%M) %cyan(%X{traceId})   classpath:%c \n%highlight(return):%m%n"></property>
+<property name="log_dir" value="./data/log"></property>
+
+
+<!--    控制台日志： 仅处理高于info的日志
+-->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                 <pattern>${console}</pattern>
+                <charset>utf8</charset>
+            </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+
+    <!--html格式日志文件输出appender ： 仅处理高于error的日志-->
+    <appender name="SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+        <!--日志文件保存路径-->
+        <file>${log_dir}/logback.html</file>
+        <!--html 消息格式配置-->
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.html.HTMLLayout">
+            </layout>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+
+    <!-- 文本格式日志文件输出appender ： 处理任何级别的日志-->
+        <appender name="All_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${log_dir}/All/app.log</file>
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+
+<!--            滚动策略：
+                每日午夜滚动（滚动期是根据 fileNamePattern 的值推断出来的）
+                最大历史30天
+                存档移除将在 appender 启动时执行
+-->
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>${log_dir}/All/demo.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <maxHistory>30</maxHistory>
+                <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            </rollingPolicy>
+
+
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>DEBUG</level>
+            </filter>
+    </appender>
+
+
+
+
+
+
+
+<!--    日志记录根，是否接受日志则有appender处理器的过滤器决定  -->
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="All_APPENDER"></appender-ref>
+        <appender-ref ref="SERVICE_APPENDER"/>
+    </root>
+
+
+
+</configuration>

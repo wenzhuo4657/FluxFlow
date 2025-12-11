@@ -62,4 +62,14 @@ public class GetItemsResponse {
     public void setExpand(String expand) {
         this.expand = expand;
     }
+
+    @Override
+    public String toString() {
+        return "GetItemsResponse{" +
+                "index='" + index + '\'' +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", expand='" + expand + '\'' +
+                '}';
+    }
 }

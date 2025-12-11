@@ -4,6 +4,7 @@ package cn.wenzhuo4657.dailyWeb.tigger.http;
 import cn.wenzhuo4657.dailyWeb.Main;
 import cn.wenzhuo4657.dailyWeb.domain.system.service.SystemService;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
+import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,17 +53,20 @@ public class SystemController {
     )
     public ResponseEntity<Resource> DownLoadFile() {
         try {
+            log.info("开始下载数据库文件");
 
             Path filePath= Main.getFilePath();
             String ts = LocalDateTime.now().format(TS);
             Path tempBackup  = filePath.resolve("beifen-" + ts + ".db");
 
             try {
-                systemService.export(tempBackup);
+                boolean export = systemService.export(tempBackup);
+                log.info("数据库文件导出结果：{}",export);
             }catch (Exception e){
                 log.error("获取数据库连接失败",e);
                 return ResponseEntity.status(500).body(null);
             }
+
 
 
             long size = Files.size(tempBackup);
@@ -81,6 +85,7 @@ public class SystemController {
                     .header(HttpHeaders.CACHE_CONTROL, "no-store") // 按需调整缓存策略
                     .contentLength(size)
                     .body(body);
+
 
             return res;
         }catch (IOException e){
@@ -104,6 +109,7 @@ public class SystemController {
         if (file == null || file.isEmpty()) {
             return ResponseEntity.ok().body(ApiResponse.error("文件不能为空"));
         }
+        log.info("userID: {},  文件名: {}", AuthUtils.getLoginId(), file.getOriginalFilename());
 
         Path filePath = Main.getFilePath();
 
@@ -115,9 +121,8 @@ public class SystemController {
         }
         File tempFile = temp.toFile();
 
-        systemService.reset(tempFile);
-
-
+        boolean reset = systemService.reset(tempFile);
+        log.info("userID: {}, 重置结果: {}", AuthUtils.getLoginId(), reset);
         return ResponseEntity.ok().body(ApiResponse.success());
     }
 
