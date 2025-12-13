@@ -18,8 +18,6 @@ public class TypesService  implements   ITypesService{
 
     @Override
     public List<TypeDto> getAllTypes(Long userId) {
-
-
         return typesRepository.getAllByUserId(userId);
     }
 

@@ -100,10 +100,12 @@ public class SystemServiceImpl implements SystemService {
                 // 重新创建Statement以避免锁定问题
                 try (Statement detachStmt = dataSource.getConnection().createStatement()) {
                     detachStmt.execute("DETACH DATABASE " + tempDatabaseName + ";");
+
                 }
             } catch (Exception e) {
                 throw new RuntimeException("数据库导入失败", e);
             }finally {
+
                 boolean delete = tempFile.delete();
                 System.out.println("删除临时文件：" + delete);
             }
