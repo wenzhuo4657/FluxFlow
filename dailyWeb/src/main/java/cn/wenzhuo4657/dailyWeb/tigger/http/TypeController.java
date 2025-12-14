@@ -10,6 +10,7 @@ import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.GetContentIdsByTypesRequest;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.DocsResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.TypeResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Controller(value = "/types")
@@ -35,12 +38,11 @@ public class TypeController {
     private ITypesService typesService;
 
 
+
     @RequestMapping(value = "/getAllTypes")
     public ResponseEntity<ApiResponse<List<TypeResponse>>> getAllTypes() {
         log.info("userID:{}", AuthUtils.getLoginId());
         List<TypeDto> typeDtos = typesService.getAllTypes(AuthUtils.getLoginId());
-
-
         List<TypeResponse> collect = typeDtos.stream()
                 .map(dto -> new TypeResponse(dto.getId().toString(), dto.getName()))
                 .collect(Collectors.toList());

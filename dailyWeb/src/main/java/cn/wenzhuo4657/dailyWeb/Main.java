@@ -10,6 +10,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.nio.file.Path;
@@ -25,6 +26,7 @@ import java.nio.file.Paths;
 @SpringBootApplication
 @EnableScheduling
 @MapperScan("cn.wenzhuo4657.dailyWeb.infrastructure.database.dao")
+@EnableAsync
 public class Main  implements ApplicationRunner {
     private final static Logger log = org.slf4j.LoggerFactory.getLogger(Main.class);
 
@@ -41,7 +43,6 @@ public class Main  implements ApplicationRunner {
      * 1， 日报程序后端地址
      * 2， 通知器程序的后端地址
      */
-
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
         log.info("启动成功");

@@ -19,6 +19,8 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.sqlite.JDBC
     url: "jdbc:sqlite:${dir.beifen}/${dir.db}"
+    hikari:
+      maximum-pool-size: 1  # 最大数据库链接数据量，避免sqlite的写锁问题
   sql:
     init:
       schema-locations: classpath:schema.sql
@@ -58,6 +60,12 @@ sa-token:
 
 email:
   enable: false
+
+
+
+traceID:
+  header:
+    name: TRACE_ID
 
 
 
