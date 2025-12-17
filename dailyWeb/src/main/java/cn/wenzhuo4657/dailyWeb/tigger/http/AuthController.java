@@ -56,7 +56,6 @@ public class AuthController {
     @GetMapping("/render/github")
     public void renderGithub(HttpServletResponse response)  {
         try {
-            log.info("clientId: {} ,clientSecret: {} , redirectUri: {}", clientId, clientSecret, redirectUri);
             if (authRequest == null) {
                 response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                 response.getWriter().write("GitHub OAuth not configured");

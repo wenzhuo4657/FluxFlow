@@ -36,6 +36,10 @@ public class TypeFunction {
                 Map<String, String> map = DocsItemFiled.toMap(item.getItemField());
                 return  map.get(DocsItemFiled.ItemFiled.title.getFiled());
             }
+            if (itemType.getTypeName().equals(DocsItemType.ItemType.StickyNote.getTypeName())){
+                return  "stickyNote";
+            }
+
             throw  new ClassNotFoundException("不支持的ItemType");
 
         }
@@ -74,8 +78,11 @@ public class TypeFunction {
                 }else {
                     throw new AppException(ResponseCode.programmingError);
                 }
-            }else {
-                throw new AppException(ResponseCode.programmingError);
+            } else if (DocsItemType.ItemType.StickyNote.equals(itemType)){
+//                什么都不做
+            }
+            else {
+                throw new AppException(ResponseCode.UnsupportedType);
             }
 
 

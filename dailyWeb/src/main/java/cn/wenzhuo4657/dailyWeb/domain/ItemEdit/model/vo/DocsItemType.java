@@ -27,11 +27,14 @@ public   class   DocsItemType{
              DocsItemFiled.ItemFiled.title
         };
 
+        private static  DocsItemFiled.ItemFiled[]  StickyNote_Field={};
+
 
         public  enum  ItemType{
             dailyBase("dailyBase", Daily_Base_Field,0),
             Plan_I("Plan_I", Plan_I_Field,1),
-            Plan_II("Plan_II", Plan_II_Field,2)
+            Plan_II("Plan_II", Plan_II_Field,2),
+            StickyNote("StickyNote",StickyNote_Field,3)
             ;
 
             ItemType(String typeName, DocsItemFiled.ItemFiled[] filed,int code) {

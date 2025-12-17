@@ -31,9 +31,6 @@ public class InsertItemDto {
         return docsId;
     }
 
-    public void setContentNameId(Long docsId) {
-        this.docsId = docsId;
-    }
 
     public void setDocsId(Long docsId) {
         this.docsId = docsId;

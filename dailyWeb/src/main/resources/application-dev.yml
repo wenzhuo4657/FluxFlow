@@ -1,6 +1,7 @@
 domain:
   url:  http://localhost:8080
-  home:  http://localhost:8080
+  home:  http://localhost:8080   # 访问打包在静态目录的前端
+#  home:  http://localhost:5173   # 访问前端项目自行启动的地址  npm run dev
 
 email:
   enable: true
