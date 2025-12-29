@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalRestExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalRestExceptionHandler.class);
 
+
+//    todo 当oauth登录时无法请求github时，后端没有专门的处理！
+
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiResponse> handleAppException(AppException e) {
         // 确保当前线程有traceId

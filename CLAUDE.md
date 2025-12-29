@@ -105,6 +105,89 @@ dailyWeb/src/main/java/cn/wenzhuo4657/dailyWeb/
 6. **全局异常处理**: `GlobalRestExceptionHandler` 统一处理异常
 7. **跨域配置**: `CorsConfig` 处理前后端分离的跨域问题
 
+## 专业 Agents 使用指南
+
+项目配置了多个专业化 AI Agents 来提升代码质量和开发效率。Claude Code 应该在以下场景主动使用这些 agents：
+
+### 可用 Agents 列表
+
+#### 1. **code-reviewer-pro** - 代码审查专家
+- **用途**: 对代码进行全面的质量、安全性和可维护性审查
+- **触发时机**:
+  - ✅ **每次完成代码修改或编写新功能后**（必须自动触发）
+  - 提交 PR 之前
+  - 重大重构后
+- **使用方式**: `Task tool with subagent_type=code-reviewer-pro`
+- **检查重点**: 安全漏洞、代码质量、性能问题、最佳实践、测试覆盖
+
+#### 2. **test-automator** - 测试自动化专家
+- **用途**: 设计、实现和维护自动化测试策略
+- **触发时机**:
+  - ✅ **需要为新功能编写测试时主动使用**
+  - 提升测试覆盖率
+  - 设置 CI/CD 测试管道
+  - 优化测试流程
+- **使用方式**: `Task tool with subagent_type=test-automator`
+- **专业领域**: 单元测试、集成测试、E2E 测试、测试策略、CI/CD 集成
+
+#### 3. **debugger** - 调试专家
+- **用途**: 专门处理错误、测试失败和异常行为
+- **触发时机**:
+  - ✅ **遇到任何错误或测试失败时主动使用**
+  - 性能问题排查
+  - 意外行为调查
+- **使用方式**: `Task tool with subagent_type=debugger`
+- **能力**: 系统化问题诊断、根本原因分析、修复验证
+
+#### 4. **backend-architect** - 后端架构师
+- **用途**: 设计健壮、可扩展、可维护的后端系统
+- **触发时机**:
+  - 设计新功能或服务时
+  - 架构决策前
+  - API 设计评审
+- **使用方式**: `Task tool with subagent_type=backend-architect`
+- **流程**: 需求收集 → 架构设计 → 方案提案
+
+#### 5. **architect-reviewer** - 架构审查专家
+- **用途**: 审查架构一致性、模式遵守和可维护性
+- **触发时机**:
+  - ✅ **结构性变更后主动审查**
+  - 引入新服务后
+  - API 修改后
+- **使用方式**: `Task tool with subagent_type=architect-reviewer`
+- **检查重点**: 系统完整性、架构一致性、可维护性
+
+#### 6. **qa-expert** - 质量保证专家
+- **用途**: 设计和实施全面的 QA 流程
+- **触发时机**:
+  - ✅ **需要开发测试策略时主动使用**
+  - 执行详细测试计划
+  - 质量改进建议
+- **使用方式**: `Task tool with subagent_type=qa-expert`
+- **能力**: QA 流程设计、测试计划执行、数据驱动反馈
+
+### Agent 使用工作流
+
+#### 标准开发流程
+1. **编写/修改代码** → 自动使用 `code-reviewer-pro` 审查
+2. **发现 bug/错误** → 自动使用 `debugger` 诊断
+3. **需要添加测试** → 自动使用 `test-automator` 实现
+4. **架构变更** → 自动使用 `architect-reviewer` 审查
+
+#### 并行使用策略
+当需要多个 agents 时，在单个响应中并行启动多个 agents：
+```xml
+<Task tool call for code-reviewer-pro>
+<Task tool call for architect-reviewer>
+```
+
+### 重要规则
+
+- ✅ **主动使用**: 标记了 "主动使用" 的 agents 必须在相应场景自动触发，无需用户请求
+- ⚠️ **优先级**: 修复 bug 和错误时，debugger 应优先于其他 agents
+- 📋 **上下文**: Agents 可以看到完整对话历史，无需重复上下文
+- 🔄 **串行 vs 并行**: 独立任务使用并行，依赖任务使用串行
+
 ## 特殊功能
 
 ### 定时备份
