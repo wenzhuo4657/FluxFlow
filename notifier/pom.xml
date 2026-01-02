@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ==================== Spring Boot 项目 POM 模板 ==================== -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ==================== 依赖管理 ==================== -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>3.4.5</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+    <!-- ==================== 项目基本信息 ==================== -->
+    <!-- 这些变量会在生成项目时被用户输入的实际值替换 -->
+    <groupId>cn.wenzhuo4657.noifiterBot</groupId>
+    <artifactId>app</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <!-- 项目名称和描述 -->
+    <name>app</name>
+
+
+    <!-- ==================== 属性配置 ==================== -->
+    <properties>
+        <!-- Java版本：建议使用17或更高版本，这是Spring Boot 3.x的最低要求 -->
+        <java.version>17</java.version>
+        <!-- 支持Java 24的模块系统 -->
+        <java.modularity.enabled>true</java.modularity.enabled>
+
+        <!-- 项目编码：统一使用UTF-8，避免中文乱码问题 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- 应用版本 -->
+        <app.version>${project.version}</app.version>
+
+        <!-- Maven编译器插件版本 -->
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+
+        <telegrambots.version>9.2.0</telegrambots.version>
+        <wechaty.version>0.1.5-SNAPSHOT</wechaty.version>
+        <redisson.version>3.38.1</redisson.version>
+        <fastJson.version>2.0.43</fastJson.version>
+        <hutool.version>5.8.41</hutool.version>
+    </properties>
+
+    <!-- ==================== 依赖管理 ==================== -->
+    <!-- 这里配置项目所需的所有依赖 -->
+    <dependencies>
+        <!-- Spring Boot Web启动器：包含Spring MVC、Tomcat等Web开发必需的依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots-longpolling</artifactId>
+            <version>${telegrambots.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots-client</artifactId>
+            <version>${telegrambots.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots-abilities</artifactId>
+            <version>${telegrambots.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>${redisson.version}</version>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>${fastJson.version}</version>
+        </dependency>
+
+        <!-- Caffeine 本地缓存 -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <!-- ==================== 构建配置 ==================== -->
+    <build>
+        <!-- 插件配置 -->
+
+        <plugins>
+            <!-- Spring Boot Maven插件：用于打包可执行jar文件 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+
+                    <!--                    每一个<execution>都是一个归档包的定义 -->
+                    <!--                    可执行jar包配置-->
+                    <execution>
+                        <id>repackage</id>
+
+                        <goals>
+                            <!--                            绑定生命周期在package后-->
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+
+                            <attach>true</attach>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven编译插件：确保使用正确的Java版本编译 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <!-- Java 9+ 模块系统支持 -->
+                    <release>${java.version}</release>
+                    <!-- Java 24 兼容性配置 -->
+                    <compilerArgs>
+                        <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
+                        <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
+                        <arg>--add-opens=java.base/java.lang.reflect=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <!-- Maven测试插件：确保测试能正确执行 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

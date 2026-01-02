@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>NotifierBot 通知系统查询控制台</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #007bff;
+        }
+
+        .info-box h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-box h2::before {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .notifiers-box h2::before {
+            content: "📢";
+        }
+
+        .decorators-box h2::before {
+            content: "🎨";
+        }
+
+        .status-box h2::before {
+            content: "🔍";
+        }
+
+        .data-container {
+            background: #ffffff;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow: hidden;
+            margin-top: 15px;
+            display: flex;
+        }
+
+        .left-panel {
+            width: 30%;
+            min-width: 200px;
+            border-right: 2px solid #e1e5e9;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .right-panel {
+            width: 70%;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .notifier-button {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: #f8f9fa;
+            color: #333;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notifier-button:hover {
+            background: #e9ecef;
+            color: #007bff;
+        }
+
+        .notifier-button.active {
+            background: #007bff;
+            color: white;
+            border-left: 4px solid #0056b3;
+        }
+
+        .notifier-button .icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .notifier-button .text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .notifier-details {
+            padding: 20px;
+            height: 100%;
+        }
+
+        .notifier-details .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notifier-details .description {
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            font-style: italic;
+        }
+
+        .data-container.loading {
+            display: block;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .data-container.loading {
+            color: #666;
+            font-style: italic;
+        }
+
+        .data-container.error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #28a745;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #28a745;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-area {
+            background: #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .response-area h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .response-content {
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .loading-indicator.show {
+            display: block;
+        }
+
+        .loading-indicator::after {
+            content: "⏳ 查询中...";
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #007bff;
+        }
+
+        .stat-item .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-item .label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-row {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 NotifierBot</h1>
+            <p>分布式通知系统查询控制台</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 系统统计信息 -->
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="number" id="notifiersCount">-</div>
+                    <div class="label">支持的通知器类型</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="decoratorsCount">-</div>
+                    <div class="label">支持的装饰器类型</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="lastCheckTime">-</div>
+                    <div class="label">最后检查时间</div>
+                </div>
+            </div>
+
+            <!-- 通信器状态查询 - 放在前面 -->
+            <div class="form-section">
+                <h2>通信器状态查询</h2>
+                <div class="form-group">
+                    <label for="communicatorIndex">通信器索引:</label>
+                    <input type="number" id="communicatorIndex" placeholder="请输入要查询的通信器索引" min="0">
+                </div>
+                <button class="btn" onclick="checkCommunicatorStatus()" id="checkStatusBtn">查询状态</button>
+
+                <div class="loading-indicator" id="statusLoading"></div>
+
+                <div class="response-area">
+                    <h3>查询结果:</h3>
+                    <div class="response-content" id="statusResponse">请输入通信器索引并点击查询按钮</div>
+                </div>
+            </div>
+
+            <!-- 通知器类型展示 -->
+            <div class="info-box notifiers-box">
+                <h2>支持的通知器类型</h2>
+                <div class="data-container" id="notifiersContainer">
+                    <span class="loading-indicator show" id="notifiersLoading"></span>
+                </div>
+            </div>
+
+            <!-- 装饰器类型展示 -->
+            <div class="info-box decorators-box">
+                <h2>支持的装饰器类型</h2>
+                <div class="data-container" id="decoratorsContainer">
+                    <span class="loading-indicator show" id="decoratorsLoading"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSupportedNotifiers();
+            loadSupportedDecorators();
+            updateLastCheckTime();
+        });
+
+        // 更新最后检查时间
+        function updateLastCheckTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('lastCheckTime').textContent = timeStr;
+        }
+
+        // 加载支持的通知器类型
+        async function loadSupportedNotifiers() {
+            const container = document.getElementById('notifiersContainer');
+            const loading = document.getElementById('notifiersLoading');
+
+            try {
+                loading.classList.add('show');
+                container.classList.remove('error');
+
+                const response = await fetch('/api/v1/notifier/support/notifiers');
+                const data = await response.json();
+
+                loading.classList.remove('show');
+
+                if (data.code === 200 && data.data) {
+                    const notifiers = data.data;
+
+                    if (typeof notifiers === 'object' && notifiers !== null) {
+                        createSplitPanelLayout(container, notifiers, 'notifier');
+                        document.getElementById('notifiersCount').textContent = Object.keys(notifiers).length;
+                    } else {
+                        container.innerHTML = '<div class="loading">返回数据格式异常: ' + escapeHtml(JSON.stringify(notifiers, null, 2)) + '</div>';
+                        document.getElementById('notifiersCount').textContent = 'N/A';
+                    }
+                } else {
+                    container.innerHTML = '<div class="loading error">请求失败: ' + escapeHtml(data.message || '未知错误') + '</div>';
+                    container.classList.add('error');
+                    document.getElementById('notifiersCount').textContent = '0';
+                }
+            } catch (error) {
+                console.error('加载通知器类型失败:', error);
+                container.innerHTML = '<div class="loading error">网络错误: ' + escapeHtml(error.message) + '</div>';
+                container.classList.add('error');
+                loading.classList.remove('show');
+                document.getElementById('notifiersCount').textContent = '0';
+            }
+        }
+
+        // 加载支持的装饰器类型
+        async function loadSupportedDecorators() {
+            const container = document.getElementById('decoratorsContainer');
+            const loading = document.getElementById('decoratorsLoading');
+
+            try {
+                loading.classList.add('show');
+                container.classList.remove('error');
+
+                const response = await fetch('/api/v1/notifier/support/decorators');
+                const data = await response.json();
+
+                loading.classList.remove('show');
+
+                if (data.code === 200 && data.data) {
+                    const decorators = data.data;
+
+                    if (typeof decorators === 'object' && decorators !== null) {
+                        createSplitPanelLayout(container, decorators, 'decorator');
+                        document.getElementById('decoratorsCount').textContent = Object.keys(decorators).length;
+                    } else {
+                        container.innerHTML = '<div class="loading">返回数据格式异常: ' + escapeHtml(JSON.stringify(decorators, null, 2)) + '</div>';
+                        document.getElementById('decoratorsCount').textContent = 'N/A';
+                    }
+                } else {
+                    container.innerHTML = '<div class="loading error">请求失败: ' + escapeHtml(data.message || '未知错误') + '</div>';
+                    container.classList.add('error');
+                    document.getElementById('decoratorsCount').textContent = '0';
+                }
+            } catch (error) {
+                console.error('加载装饰器类型失败:', error);
+                container.innerHTML = '<div class="loading error">网络错误: ' + escapeHtml(error.message) + '</div>';
+                container.classList.add('error');
+                loading.classList.remove('show');
+                document.getElementById('decoratorsCount').textContent = '0';
+            }
+        }
+
+        // 创建左右分栏布局
+        function createSplitPanelLayout(container, data, type) {
+            const keys = Object.keys(data);
+            if (keys.length === 0) {
+                container.innerHTML = '<div class="loading">暂无数据</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="left-panel" id="${type}LeftPanel"></div>
+                <div class="right-panel" id="${type}RightPanel">
+                    <div class="empty-state">请点击左侧按钮查看详细信息</div>
+                </div>
+            `;
+
+            const leftPanel = document.getElementById(`${type}LeftPanel`);
+            const rightPanel = document.getElementById(`${type}RightPanel`);
+
+            // 创建按钮
+            keys.forEach((key, index) => {
+                const button = document.createElement('button');
+                button.className = 'notifier-button';
+                if (index === 0) button.classList.add('active');
+
+                const icon = type === 'notifier' ? '📢' : '🎨';
+                button.innerHTML = `
+                    <span class="icon">${icon}</span>
+                    <span class="text">${key}</span>
+                `;
+
+                button.onclick = (event) => {
+                event.stopPropagation();
+                selectNotifier(key, data[key], type, leftPanel, rightPanel);
+            };
+                leftPanel.appendChild(button);
+            });
+
+            // 默认选中第一个
+            if (keys.length > 0) {
+                selectNotifier(keys[0], data[keys[0]], type, leftPanel, rightPanel);
+            }
+        }
+
+        // 选择通知器/装饰器显示详情
+        function selectNotifier(key, value, type, leftPanel, rightPanel) {
+            // 更新按钮状态
+            const buttons = leftPanel.querySelectorAll('.notifier-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // 找到对应按钮并设为激活状态
+            const targetButton = Array.from(buttons).find(btn =>
+                btn.querySelector('.text').textContent === key
+            );
+            if (targetButton) {
+                targetButton.classList.add('active');
+            }
+
+            // 处理转义字符，保持原始格式
+            const displayValue = value.replace(/\\n/g, '\n')
+                                     .replace(/\\t/g, '\t')
+                                     .replace(/\\"/g, '"')
+                                     .replace(/\\\\/g, '\\');
+
+            const icon = type === 'notifier' ? '📢' : '🎨';
+            const title = type === 'notifier' ? '通知器' : '装饰器';
+
+            rightPanel.innerHTML = `
+                <div class="notifier-details">
+                    <div class="title">
+                        <span>${icon}</span>
+                        <span>${title}: ${key}</span>
+                    </div>
+                    <div class="description">${escapeHtml(displayValue)}</div>
+                </div>
+            `;
+        }
+
+        // HTML转义函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 检查通信器状态
+        async function checkCommunicatorStatus() {
+            const communicatorIndex = document.getElementById('communicatorIndex').value;
+            const loading = document.getElementById('statusLoading');
+            const responseDiv = document.getElementById('statusResponse');
+            const checkBtn = document.getElementById('checkStatusBtn');
+
+            if (!communicatorIndex) {
+                alert('请输入通信器索引');
+                return;
+            }
+
+            if (communicatorIndex < 0) {
+                alert('通信器索引不能为负数');
+                return;
+            }
+
+            const requestBody = {
+                communicatorIndex: parseInt(communicatorIndex)
+            };
+
+            loading.classList.add('show');
+            responseDiv.textContent = '查询中...';
+            checkBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/v1/notifier/status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                // 处理响应数据中的转义字符
+                let responseText = JSON.stringify(data, null, 2);
+                responseText = responseText.replace(/\\n/g, '\n')
+                                         .replace(/\\t/g, '\t')
+                                         .replace(/\\"/g, '"');
+
+                responseDiv.textContent = responseText;
+                updateLastCheckTime();
+
+                // 根据响应状态更新UI
+                if (data.code === 200) {
+                    responseDiv.style.color = '#28a745';
+                } else {
+                    responseDiv.style.color = '#dc3545';
+                }
+
+            } catch (error) {
+                console.error('状态查询失败:', error);
+                responseDiv.textContent = `查询失败: ${error.message}`;
+                responseDiv.style.color = '#dc3545';
+            } finally {
+                loading.classList.remove('show');
+                checkBtn.disabled = false;
+            }
+        }
+
+        // 支持回车键查询
+        document.getElementById('communicatorIndex').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkCommunicatorStatus();
+            }
+        });
+    </script>
+</body>
+</html>

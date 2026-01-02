@@ -18,9 +18,9 @@ import java.io.File;
 
 
 @Component
-public class ApiServiceImpl  implements  ApiService{
+public class ApiServiceHttpImpl  implements  ApiService{
 
-    Logger log= LoggerFactory.getLogger(ApiServiceImpl.class);
+    Logger log= LoggerFactory.getLogger(ApiServiceHttpImpl.class);
 
     @Autowired
     private RestTemplate restTemplate;
@@ -31,7 +31,7 @@ public class ApiServiceImpl  implements  ApiService{
     @Override
     public long registerCommunicator(String from, String password, String to) {
         String string = JSONObject.of("from", from, "password", password, "to", to).toString();
-        JSONObject jsonObject = JSONObject.of("type", "gmail", "paramsJson", string, "decorators", new String[]{"qps"});
+        JSONObject jsonObject = JSONObject.of("type", "gmail", "paramsJson", string, "decorators", new String[]{});
 
         // 创建 ParameterizedTypeReference 来保留完整的泛型类型信息
         ParameterizedTypeReference<ApiResponse<CommunicatorIndexResponse>> typeRef =

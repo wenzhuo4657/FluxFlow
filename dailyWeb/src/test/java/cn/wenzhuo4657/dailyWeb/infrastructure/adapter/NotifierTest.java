@@ -1,7 +1,7 @@
 package cn.wenzhuo4657.dailyWeb.infrastructure.adapter;
 
 import cn.wenzhuo4657.dailyWeb.Main;
-import cn.wenzhuo4657.dailyWeb.infrastructure.adapter.notifier.ApiServiceImpl;
+import cn.wenzhuo4657.dailyWeb.infrastructure.adapter.notifier.ApiService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ public class NotifierTest {
 
 
     @Autowired
-    private ApiServiceImpl apiService;
+    private ApiService apiService;
 
     @Value("${email.config.to}")
     private  String to;

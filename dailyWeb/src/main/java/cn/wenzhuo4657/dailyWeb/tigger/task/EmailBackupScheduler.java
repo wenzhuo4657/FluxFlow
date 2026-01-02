@@ -3,7 +3,7 @@ package cn.wenzhuo4657.dailyWeb.tigger.task;
 
 
 import cn.wenzhuo4657.dailyWeb.Main;
-import cn.wenzhuo4657.dailyWeb.infrastructure.adapter.notifier.ApiServiceImpl;
+import cn.wenzhuo4657.dailyWeb.infrastructure.adapter.notifier.ApiService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +23,7 @@ public class EmailBackupScheduler {
 
     private final static Logger log= org.slf4j.LoggerFactory.getLogger(EmailBackupScheduler.class);
     @Autowired
-    private ApiServiceImpl apiService;
+    private ApiService apiService;
 
     @Value("${email.config.to}")
     private  String to;
