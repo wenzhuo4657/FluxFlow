@@ -6,16 +6,33 @@ services:
     image: notifier:1.0-SNAPSHOT
     container_name: notifier
     ports:
-      - "8082:8080"
+      - "8082:8089"  # notifier默认端口是8089
     environment:
-      - SERVER_PORT=8080
+      - SERVER_PORT=8089
+      - SPRING_PROFILES_ACTIVE=cache
     networks:
       - app-network
+    restart: unless-stopped
+    # 资源限制 (仅在 Docker Swarm 模式生效,常规 docker-compose 请使用 --compatibility 标志)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:8080/actuator/health"]
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8089/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # DailyWeb主服务
   dailyweb:
@@ -25,20 +42,50 @@ services:
       - "8081:8081"
     environment:
       - SERVER_PORT=8081
-      - DIR_BEIFEN=/root/snap/daily/beifen
-      - EMAIL_ENABLE=true
+      - DIR_BEIFEN=/app/data/beifen
       - SPRING_PROFILES_ACTIVE=prod
-      - NOTIFIERBOT_BASE_URL=http://notifier:8080
-      - DOMAIN_URL=${domain:https://location:8081}    # dailyweb服务地址
-      - GITHUB_CLIENT_ID= ${GITHUB_CLIENT_ID}
+      - NOTIFIERBOT_BASE_URL=http://notifier:8089
+      - DOMAIN_URL=${DOMAIN_URL:-https://localhost:8081}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GMAIL_PASSWORD=${GMAIL_PASSWORD:-}
+    volumes:
+      # SQLite数据库持久化
+      - dailyweb-data:/app/data
+      # 日志持久化(可选)
+      - dailyweb-logs:/app/logs
     networks:
       - app-network
+    depends_on:
+      notifier:
+        condition: service_healthy
+    restart: unless-stopped
+    # 资源限制 (仅在 Docker Swarm 模式生效,常规 docker-compose 请使用 --compatibility 标志)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:8081/actuator/health"]
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8081/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  dailyweb-data:
+    driver: local
+  dailyweb-logs:
+    driver: local
 
 networks:
   app-network:
