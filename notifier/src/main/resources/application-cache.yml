@@ -1,0 +1,36 @@
+
+
+cache:
+  # 是否启用第三方缓存，false表示使用本地缓存
+  enabled: true
+
+  # 当前使用的缓存类型 (redis 或 valkey)
+  active-type: redis
+
+  # 缓存键前缀
+  key-prefix: "app:cache"
+
+  # Redis 配置 (使用Redisson客户端)
+  redis:
+    host:  ${HOST1}
+    port: 6379
+    password: # 如果没有密码，留空
+    database: 0
+    # Redisson连接池配置
+    connection-pool-size: 64
+    connection-minimum-idle-size: 10
+    connect-timeout: 10000  # 连接超时时间(毫秒)
+    timeout: 3000  # 命令执行超时时间(毫秒)
+    retry-attempts: 3  # 重试次数
+    retry-interval: 1500  # 重试间隔(毫秒)
+
+  # Valkey 配置
+  valkey:
+    host: localhost
+    port: 6379
+    password: # 如果没有密码，留空
+    database: 0
+    client-type: lettuce  # lettuce 或 jedis
+    share-native-connection: true
+    enable-valkey-specific-features: false
+
