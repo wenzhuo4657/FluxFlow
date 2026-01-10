@@ -4,8 +4,8 @@ cache:
   # 是否启用第三方缓存，false表示使用本地缓存
   enabled: true
 
-  # 当前使用的缓存类型 (redis 或 valkey 或 local)
-  active-type: local
+  # 当前使用的缓存类型 (redis 或 valkey)
+  active-type: redis
 
   # 缓存键前缀
   key-prefix: "app:cache"

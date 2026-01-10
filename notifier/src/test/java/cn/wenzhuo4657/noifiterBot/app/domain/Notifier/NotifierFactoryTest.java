@@ -23,10 +23,9 @@ public class NotifierFactoryTest {
     public   void test(){
         TgBotConfig tgBotConfig=new TgBotConfig();
         tgBotConfig.setBotToken(System.getenv("tgBot"));
-        String json= JSON.toJSONString(tgBotConfig);
-        String  type=ConfigType.Strategy.TgBot.getCode();
-        String[]  decorator={ConfigType.Decorator.Qps.getCode()};
-        long index = pondFactory.init(json, type, decorator);
+        
+
+        long index = pondFactory.createTgBotNotifier(tgBotConfig.getBotToken(),new String[]{"qps"});
 
         INotifier notifier = pondFactory.get(index);
         TgBotNotifierMessage message=new TgBotNotifierMessage();

@@ -1,27 +1,47 @@
 version: '3.8'
 
 services:
+  # Redis缓存服务 - 用于通知器缓存
+  cache:
+    image: redis:6.2.21-alpine
+    container_name: some-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --bind 0.0.0.0 --protected-mode no
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   # Notifier服务 - 通知机器人服务
   notifier:
     image: notifier:1.0-SNAPSHOT
     container_name: notifier
     ports:
-      - "8082:8089"  # notifier默认端口是8089
+      - "8082:8089"
     environment:
       - SERVER_PORT=8089
       - SPRING_PROFILES_ACTIVE=cache
+      # Redis配置
+      - CACHE_ENABLED=true
+      - CACHE_ACTIVE_TYPE=redis
+      - HOST1=cache
+      - CACHE_REDIS_PORT=6379
     networks:
       - app-network
+    depends_on:
+      cache:
+        condition: service_healthy
     restart: unless-stopped
-    # 资源限制 (仅在 Docker Swarm 模式生效,常规 docker-compose 请使用 --compatibility 标志)
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     healthcheck:
       test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8089/ || exit 1"]
       interval: 30s
@@ -60,15 +80,6 @@ services:
       notifier:
         condition: service_healthy
     restart: unless-stopped
-    # 资源限制 (仅在 Docker Swarm 模式生效,常规 docker-compose 请使用 --compatibility 标志)
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
     healthcheck:
       test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8081/ || exit 1"]
       interval: 30s
@@ -90,4 +101,3 @@ volumes:
 networks:
   app-network:
     driver: bridge
-

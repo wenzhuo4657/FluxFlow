@@ -5,78 +5,96 @@ import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.factory.IPondFacto
 import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.strategy.INotifier;
 import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.strategy.NotifierMessage;
 import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.strategy.NotifierResult;
-import com.alibaba.fastjson2.JSON;
+import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.strategy.tgBot.TgBotNotifierMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ * 通知器服务实现类
+ * 提供通知器的注册、消息发送、状态查询等功能的实现
+ */
 @Service
-public class NormallyService implements  INotifierService{
+public class NormallyService implements INotifierService {
 
     @Autowired
     private IPondFactory pondFactory;
+
+    // ============ 注册通信器实现 ============
+
     @Override
-    public long registerCommunicator(String paramsJson, String type,String [] decorator) {
-        return  pondFactory.init(paramsJson,type,decorator);
+    public long registerGmailCommunicator(String from, String password, String to, String[] decorator) {
+        return pondFactory.createGmailNotifier(from, password, to, decorator);
     }
 
     @Override
-    public boolean sendInfo(long communicatorIndex, String paramsJson,String type) {
-        ConfigType.Strategy strategy = ConfigType.Strategy.find(type);
-        Class<? extends NotifierMessage> messageClass = strategy.getMessageClass();
-        NotifierMessage message = JSON.parseObject(paramsJson, messageClass);
+    public long registerTgBotCommunicator(String botToken, String[] decorator) {
+        return pondFactory.createTgBotNotifier(botToken, decorator);
+    }
+
+    // ============ 发送信息实现 ============
+
+    @Override
+    public boolean sendGmail(long communicatorIndex, String title, String content, String fileUrl) {
+        NotifierMessage message = new NotifierMessage();
+        message.setTitle(title);
+        message.setContent(content);
+        message.setFile1(fileUrl);
+
         INotifier notifier = pondFactory.get(communicatorIndex);
         NotifierResult send = notifier.send(message);
         return send.isSuccess();
     }
 
     @Override
-    public boolean sendInfo(long communicatorIndex, String paramsJson, String type, File file) {
-        ConfigType.Strategy strategy = ConfigType.Strategy.find(type);
-        Class<? extends NotifierMessage> messageClass = strategy.getMessageClass();
-        NotifierMessage message = JSON.parseObject(paramsJson, messageClass);
+    public boolean sendGmailWithFile(long communicatorIndex, String title, String content, File file) {
+        NotifierMessage message = new NotifierMessage();
+        message.setTitle(title);
+        message.setContent(content);
         message.setFile2(file);
 
-//        todo 有没有可能将消息作为外部，然后装饰器作为内部装配？
-//        实现的好处是不用处理json，接口增加但语义明确
         INotifier notifier = pondFactory.get(communicatorIndex);
-
-
-
         NotifierResult send = notifier.send(message);
         return send.isSuccess();
     }
+
+    @Override
+    public boolean sendTgBotMessage(long communicatorIndex, String title, String content, String chatId) {
+        TgBotNotifierMessage message = new TgBotNotifierMessage();
+        message.setTitle(title);
+        message.setContent(content);
+        message.setChatId(chatId);
+
+        INotifier notifier = pondFactory.get(communicatorIndex);
+        NotifierResult send = notifier.send(message);
+        return send.isSuccess();
+    }
+
+    // ============ 查询接口实现 ============
 
     @Override
     public boolean checkCommunicatorStatus(long communicatorIndex) {
         INotifier iNotifier = pondFactory.get(communicatorIndex);
-        if (iNotifier != null&&iNotifier.isAvailable()){
-            return true;
-        }
-        return false;
+        return iNotifier != null && iNotifier.isAvailable();
     }
 
     @Override
-    public Map<String,String> querySupportNotifier() {
+    public Map<String, String> querySupportNotifier() {
         ConfigType.Strategy[] strategies = ConfigType.Strategy.values();
-        Map<String,String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         for (ConfigType.Strategy strategy : strategies) {
-            map.put(strategy.getCode(),strategy.getDescription());
+            map.put(strategy.getCode(), strategy.getDescription());
         }
         return map;
     }
 
     @Override
-    public Map<String,String> querySupportDecorator() {
+    public Map<String, String> querySupportDecorator() {
         ConfigType.Decorator[] decorators = ConfigType.Decorator.values();
-        Map<String,String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         for (ConfigType.Decorator decorator : decorators) {
             map.put(decorator.getCode(), decorator.getDescription());
         }

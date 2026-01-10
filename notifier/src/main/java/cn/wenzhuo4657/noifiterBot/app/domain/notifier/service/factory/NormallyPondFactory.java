@@ -1,118 +1,73 @@
 package cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.factory;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import cn.wenzhuo4657.noifiterBot.app.domain.notifier.model.vo.ConfigType;
-import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.decorator.qps.QpsMaxDecorator;
+import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.factory.decorator.DecoratorFactory;
 import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.strategy.INotifier;
 import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.strategy.email.EmailNotifier;
 import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.strategy.email.GmailConfig;
 import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.strategy.tgBot.TgBotConfig;
 import cn.wenzhuo4657.noifiterBot.app.domain.notifier.service.strategy.tgBot.TgBotNotifier;
 import cn.wenzhuo4657.noifiterBot.app.infrastructure.cache.GlobalCache;
-import cn.wenzhuo4657.noifiterBot.app.types.utils.SnowflakeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+/**
+ * 通知器工厂实现类
+ * 负责创建具体的通知器实例并应用装饰器
+ *
+ * 重构说明：
+ * - 使用装饰器工厂注册表替代switch-case
+ * - 符合开闭原则：添加新装饰器无需修改此类
+ * - 新增装饰器只需创建新的DecoratorFactory实现类
+ */
 @Component
-public class NormallyPondFactory extends  AbstractPondFactory{
+public class NormallyPondFactory extends AbstractPondFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(NormallyPondFactory.class);
 
-    private GlobalCache globalCache;
+    /**
+     * 装饰器工厂注册表
+     * Key: 装饰器代码
+     * Value: 装饰器工厂实例
+     */
+    private final Map<String, DecoratorFactory> decoratorFactories;
 
-    @Autowired
-    public NormallyPondFactory(GlobalCache globalCache) {
+    /**
+     * 构造函数，自动注册所有装饰器工厂
+     *
+     * @param globalCache 全局缓存
+     * @param decoratorFactories Spring自动注入的所有装饰器工厂
+     */
+    public NormallyPondFactory(
+            GlobalCache globalCache,
+            List<DecoratorFactory> decoratorFactories) {
         super(globalCache);
-        this.globalCache=globalCache;
+
+        // 注册所有装饰器工厂到Map中
+        this.decoratorFactories = decoratorFactories.stream()
+            .collect(Collectors.toMap(
+                DecoratorFactory::getDecoratorCode,
+                Function.identity()
+            ));
+
+        logger.info("装饰器工厂注册完成: 注册数量={}, 装饰器类型={}",
+                   this.decoratorFactories.size(),
+                   this.decoratorFactories.keySet());
     }
+
+    // ============ 创建Gmail通知器 ============
 
     @Override
-    protected INotifier createNotifier(ConfigType.Strategy strategyType, String json) {
+    protected INotifier createGmailNotifierInternal(String from, String password, String to) {
         try {
-            logger.debug("创建通知器: strategyType={}, json={}", strategyType.getName(), json);
-
-            // 1. 验证输入参数
-            if (strategyType == null) {
-                throw new IllegalArgumentException("策略类型不能为空");
-            }
-            if (StrUtil.isBlank(json)) {
-                throw new IllegalArgumentException("配置JSON不能为空");
-            }
-
-            // 2. 解析JSON配置
-            JSONObject configJson = JSONUtil.parseObj(json);
-
-            // 3. 根据策略类型创建对应的通知器实例
-            switch (strategyType) {
-                case TgBot:
-                    return createTgBotNotifier(configJson);
-                case Gmail:
-                    return createEmailNotifier(configJson);
-                default:
-                    throw new IllegalArgumentException("不支持的通知器类型: " + strategyType.getName());
-            }
-
-        } catch (Exception e) {
-            logger.error("创建通知器失败: strategyType={}, json={}, error={}",
-                        strategyType != null ? strategyType.getName() : "null",
-                        json,
-                        e.getMessage(), e);
-            throw new RuntimeException("创建通知器失败: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 创建 Telegram Bot 通知器
-     *
-     * @param configJson 配置JSON
-     * @return TgBotNotifier 实例
-     */
-    private INotifier createTgBotNotifier(JSONObject configJson) {
-        try {
-            // 解析 Telegram Bot 配置
-            TgBotConfig config = new TgBotConfig();
-
-            String botToken = configJson.getStr("botToken");
-            if (StrUtil.isBlank(botToken)) {
-                throw new IllegalArgumentException("Telegram Bot Token 不能为空");
-            }
-            config.setBotToken(botToken);
-
-            // 创建通知器实例
-            TgBotNotifier notifier = new TgBotNotifier(config);
-
-            logger.debug("Telegram Bot 通知器创建成功: botToken={}",
-                        botToken.substring(0, Math.min(botToken.length(), 10)) + "...");
-
-            return notifier;
-
-        } catch (Exception e) {
-            logger.error("创建 Telegram Bot 通知器失败: config={}, error={}",
-                        configJson, e.getMessage(), e);
-            throw new RuntimeException("创建 Telegram Bot 通知器失败: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 创建邮件通知器
-     *
-     * @param configJson 配置JSON
-     * @return EmailNotifier 实例
-     */
-    private INotifier createEmailNotifier(JSONObject configJson) {
-        try {
-            // 解析邮件配置
-            GmailConfig config = new GmailConfig();
-
-            String from = configJson.getStr("from");
-            String password = configJson.getStr("password");
-            String to = configJson.getStr("to");
-
+            // 验证参数
             if (StrUtil.isBlank(from)) {
                 throw new IllegalArgumentException("发件人邮箱不能为空");
             }
@@ -123,6 +78,8 @@ public class NormallyPondFactory extends  AbstractPondFactory{
                 throw new IllegalArgumentException("收件人邮箱不能为空");
             }
 
+            // 创建配置对象
+            GmailConfig config = new GmailConfig();
             config.setFrom(from);
             config.setPassword(password);
             config.setTo(to);
@@ -130,36 +87,65 @@ public class NormallyPondFactory extends  AbstractPondFactory{
             // 创建通知器实例
             EmailNotifier notifier = new EmailNotifier(config);
 
-            logger.debug("邮件通知器创建成功: from={}, to={}", from, to);
-
+            logger.debug("Gmail通知器创建成功: from={}, to={}", from, to);
             return notifier;
 
         } catch (Exception e) {
-            logger.error("创建邮件通知器失败: config={}, error={}",
-                        configJson, e.getMessage(), e);
-            throw new RuntimeException("创建邮件通知器失败: " + e.getMessage(), e);
+            logger.error("创建Gmail通知器失败: from={}, to={}, error={}", from, to, e.getMessage(), e);
+            throw new RuntimeException("创建Gmail通知器失败: " + e.getMessage(), e);
         }
     }
 
+    // ============ 创建Telegram Bot通知器 ============
 
     @Override
-    protected INotifier applyDecorators(INotifier notifier, ConfigType.Decorator[] decorator) {
+    protected INotifier createTgBotNotifierInternal(String botToken) {
         try {
-            logger.debug("应用装饰器: decoratorCount={}", decorator != null ? decorator.length : 0);
+            // 验证参数
+            if (StrUtil.isBlank(botToken)) {
+                throw new IllegalArgumentException("Telegram Bot Token不能为空");
+            }
 
+            // 创建配置对象
+            TgBotConfig config = new TgBotConfig();
+            config.setBotToken(botToken);
+
+            // 创建通知器实例
+            TgBotNotifier notifier = new TgBotNotifier(config);
+
+            logger.debug("Telegram Bot通知器创建成功: botToken={}", maskToken(botToken));
+            return notifier;
+
+        } catch (Exception e) {
+            logger.error("创建Telegram Bot通知器失败: error={}", e.getMessage(), e);
+            throw new RuntimeException("创建Telegram Bot通知器失败: " + e.getMessage(), e);
+        }
+    }
+
+    // ============ 应用装饰器 ============
+
+    @Override
+    protected INotifier applyDecorators(INotifier notifier, String[] decoratorCodes) {
+        try {
             if (notifier == null) {
                 throw new IllegalArgumentException("通知器实例不能为空");
             }
 
-            if (decorator == null || decorator.length == 0) {
+            if (decoratorCodes == null || decoratorCodes.length == 0) {
                 logger.debug("无需应用装饰器，返回原始通知器");
                 return notifier;
             }
 
+            logger.debug("应用装饰器: decoratorCount={}, decoratorTypes={}",
+                       decoratorCodes.length, String.join(", ", decoratorCodes));
+
+            // 解析装饰器代码
+            ConfigType.Decorator[] decorators = parseDecoratorCodes(decoratorCodes);
+
             INotifier decoratedNotifier = notifier;
 
             // 应用装饰器链
-            for (ConfigType.Decorator decoratorType : decorator) {
+            for (ConfigType.Decorator decoratorType : decorators) {
                 if (decoratorType == null) {
                     logger.warn("装饰器类型为空，跳过");
                     continue;
@@ -184,29 +170,34 @@ public class NormallyPondFactory extends  AbstractPondFactory{
     /**
      * 应用单个装饰器
      *
+     * 重构说明：
+     * - 使用装饰器工厂注册表替代switch-case
+     * - 符合开闭原则：添加新装饰器无需修改此方法
+     * - 通过查找Map获取对应的工厂实例
+     *
      * @param notifier 被装饰的通知器
      * @param decoratorType 装饰器类型
      * @return 装饰后的通知器
      */
     private INotifier applySingleDecorator(INotifier notifier, ConfigType.Decorator decoratorType) {
-        try {
-            switch (decoratorType) {
-                case Qps:
-                    return new QpsMaxDecorator(notifier, globalCache);
-                default:
-                    logger.warn("不支持的装饰器类型: {}, 返回原始通知器", decoratorType.getName());
-                    return notifier;
-            }
+        String code = decoratorType.getCode();
 
+        // 从工厂注册表中查找对应的装饰器工厂
+        DecoratorFactory factory = decoratorFactories.get(code);
+
+        if (factory == null) {
+            logger.warn("不支持的装饰器类型: {}, 返回原始通知器（可能未实现对应的DecoratorFactory）",
+                       decoratorType.getName());
+            return notifier;
+        }
+
+        try {
+            // 使用工厂创建装饰后的通知器
+            return factory.create(notifier, getGlobalCache());
         } catch (Exception e) {
             logger.error("应用装饰器失败: decorator={}, error={}",
                         decoratorType.getName(), e.getMessage(), e);
             throw new RuntimeException("应用装饰器失败: " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    protected long createIndex() {
-        return SnowflakeUtils.getSnowflakeId();
     }
 }

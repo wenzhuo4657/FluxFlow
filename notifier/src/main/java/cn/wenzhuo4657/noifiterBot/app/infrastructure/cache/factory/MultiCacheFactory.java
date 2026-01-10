@@ -2,7 +2,6 @@ package cn.wenzhuo4657.noifiterBot.app.infrastructure.cache.factory;
 
 import cn.wenzhuo4657.noifiterBot.app.config.CacheConfiguration;
 import cn.wenzhuo4657.noifiterBot.app.infrastructure.cache.strategy.CacheStrategy;
-import cn.wenzhuo4657.noifiterBot.app.infrastructure.cache.strategy.LocalStrategy;
 import cn.wenzhuo4657.noifiterBot.app.infrastructure.cache.strategy.RedisStrategy;
 import cn.wenzhuo4657.noifiterBot.app.infrastructure.cache.strategy.ValkeyStrategy;
 import cn.wenzhuo4657.noifiterBot.app.types.cache.CacheType;
@@ -46,11 +45,9 @@ public class MultiCacheFactory implements IMultiCacheFactory {
                 return new RedisStrategy(cacheConfig);
             case "valkey":
                 return new ValkeyStrategy(cacheConfig);
-            case "local":
-                return new LocalStrategy(cacheConfig);
             default:
                 log.error("配置失效，未找到对应的缓存类型，使用本地缓存");
-                return new LocalStrategy(cacheConfig);
+                throw new RuntimeException("未找到对应的缓存类型");
         }
     }
 
