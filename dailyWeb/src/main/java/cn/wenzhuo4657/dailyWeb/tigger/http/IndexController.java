@@ -58,6 +58,8 @@ public class IndexController  {
         return "forward:/index.html";
     }
 
+
+
     @GetMapping("/auth/callback")
     public String authCallback(
             @RequestParam("token") String token,

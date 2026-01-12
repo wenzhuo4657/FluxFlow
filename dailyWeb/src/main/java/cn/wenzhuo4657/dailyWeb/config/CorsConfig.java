@@ -67,7 +67,8 @@ public class CorsConfig implements WebMvcConfigurer {
                         "/home/**",
                         "/auth/**",
                         "/assets/**",
-                        "/favicon.jpg"
+                        "/favicon.jpg",
+                        "/images/**"
                 );
     }
 }

@@ -38,4 +38,15 @@ public class TypesService  implements   ITypesService{
                 )
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean addDocs(Long typeId, Long userId,String docsName) {
+       return typesRepository.addDocs(typeId,userId,docsName);
+
+    }
+
+    @Override
+    public boolean deleteDocs(Long docsId, Long userId) {
+        return typesRepository.deleteDocs(docsId,userId);
+    }
 }
