@@ -2,17 +2,19 @@ package cn.wenzhuo4657.dailyWeb.infrastructure.database.repository;
 
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.TypeDto;
 import cn.wenzhuo4657.dailyWeb.domain.Types.repository.ITypesRepository;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsDao;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsTypeDao;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.UserAuthDao;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsType;
+import cn.wenzhuo4657.dailyWeb.types.utils.SnowflakeUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -21,11 +23,13 @@ public class TypesRepository implements ITypesRepository {
 
     private final static Logger log= org.slf4j.LoggerFactory.getLogger(TypesRepository.class);
 
-
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private DocsTypeDao docsTypeDao;
     @Autowired
     private UserAuthDao userAuthDao;
+    @Autowired
+    private DocsDao docsDao;
 
     @Override
     public List<TypeDto> getAll(){
@@ -42,7 +46,6 @@ public class TypesRepository implements ITypesRepository {
 
     @Override
     public List<TypeDto> getAllByUserId(Long userId) {
-//        todo 这里需要调整为动态路由，根据用户身份来做权限控制
         List<DocsType> all = docsTypeDao.getAll();
         List<TypeDto> typeDtos = new ArrayList<>();
         for (DocsType docsType : all){
@@ -58,5 +61,47 @@ public class TypesRepository implements ITypesRepository {
     public List<Docs> getDocsIdByTypeId(Long userId, Long typeId) {
         List<Docs> list = userAuthDao.queryByUserIdAndtypeId(userId, typeId);
         return list;
+    }
+
+    @Override
+    public boolean addDocs(Long typeId, Long userId, String docsName) {
+        try {
+            Docs docs = new Docs();
+            docs.setName(docsName);
+            docs.setTypeId(typeId);
+            docs.setUserId(userId);
+            docs.setDocsId(SnowflakeUtils.getSnowflakeId());
+            docs.setCreateTime(simpleDateFormat.format(new Date()));
+            docs.setUpdateTime(simpleDateFormat.format(new Date()));
+            int insert = docsDao.insert(docs);
+            if (insert != 1) {
+                log.warn("添加文档发生超预期内容");
+                return false;
+            }
+            return true;
+        }catch (Exception e){
+            log.warn("添加文档发生异常",e);
+            return false;
+        }
+
+    }
+
+    @Override
+    public boolean deleteDocs(Long docsId, Long userId) {
+        try {
+            if (docsDao.isPermissions(docsId, userId)) {
+                int delete = docsDao.deleteByDocsID(docsId);
+                if (delete != 1) {
+                    log.warn("删除文档发生超预期内容");
+                    return false;
+                }
+                return true;
+            }
+            log.warn("用户没有权限删除文档");
+            return true;
+        }catch (Exception e){
+            log.warn("删除文档发生异常",e);
+            return false;
+        }
     }
 }

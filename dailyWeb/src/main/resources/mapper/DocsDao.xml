@@ -123,6 +123,9 @@ user_id = values(user_id)
     <delete id="deleteById">
         delete from docs where id = #{id}
     </delete>
+    <delete id="deleteByDocsID">
+
+            delete from docs where docs_id = #{docsId}</delete>
 
 </mapper>
 

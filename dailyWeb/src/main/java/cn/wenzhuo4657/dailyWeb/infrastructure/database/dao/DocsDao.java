@@ -74,5 +74,8 @@ public interface DocsDao {
     boolean isPermissions(@Param("docsId") Long docsId, @Param("userId") Long userId);
 
     boolean isExist(@Param("docsId") Long docsId);
+
+    int deleteByDocsID(Long docsId);
+
 }
 

@@ -13,4 +13,8 @@ public interface ITypesRepository {
     List<TypeDto> getAllByUserId(Long userId);
 
     List<Docs> getDocsIdByTypeId(Long userId, Long typeId);
+
+    boolean addDocs(Long typeId, Long userId, String docsName);
+
+    boolean deleteDocs(Long docsId, Long userId);
 }

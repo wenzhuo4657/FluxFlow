@@ -3,15 +3,15 @@ package cn.wenzhuo4657.dailyWeb.tigger.http;
 
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.vo.DocsItemType;
 import cn.wenzhuo4657.dailyWeb.domain.Types.ITypesService;
-
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.DocsDto;
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.TypeDto;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.AddDocsRequest;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.DeleteDocsRequest;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.GetContentIdsByTypesRequest;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.DocsResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.TypeResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Controller(value = "/types")
@@ -83,5 +81,30 @@ public class TypeController {
         log.info("userID:{}getContentIdsByTypes response:{}", AuthUtils.getLoginId(),docsResponses);
         return ResponseEntity.ok(listApiResponse);
     }
+
+    @RequestMapping(value = "/addDocs")
+    public ResponseEntity<ApiResponse<Boolean>> addDocs(@Valid @RequestBody AddDocsRequest request) {
+        log.info("userID:{} addDocs request:{}", AuthUtils.getLoginId(), request);
+        Long typeId = Long.valueOf(request.getTypeId());
+        boolean result = typesService.addDocs(typeId, AuthUtils.getLoginId(), request.getDocsName());
+        ApiResponse<Boolean> apiResponse = ApiResponse.success();
+        apiResponse.setData(result);
+        log.info("userID:{} addDocs response:{}", AuthUtils.getLoginId(), result);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @RequestMapping(value = "/deleteDocs")
+    public ResponseEntity<ApiResponse<Boolean>> deleteDocs(@Valid @RequestBody DeleteDocsRequest request) {
+        log.info("userID:{} deleteDocs request:{}", AuthUtils.getLoginId(), request);
+        Long docsId = Long.valueOf(request.getDocsId());
+        boolean result = typesService.deleteDocs(docsId, AuthUtils.getLoginId());
+        ApiResponse<Boolean> apiResponse = ApiResponse.success();
+        apiResponse.setData(result);
+        log.info("userID:{} deleteDocs response:{}", AuthUtils.getLoginId(), result);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+
+
 
 }
