@@ -82,4 +82,20 @@ public class ItemEditRepository implements IItemEditRepository {
     public void deleteItem(Long index) {
         docsItemDao.delete(index);
     }
+
+    @Override
+    public List<DocsItem> getChildrenByParentId(Long parentId) {
+        return docsItemDao.queryByParentId(parentId);
+    }
+
+    @Override
+    public List<DocsItem> getTopLevelTasks(Long docsId) {
+        List<DocsItem> allTasks = docsItemDao.queryByDocsId(docsId);
+        return allTasks.stream()
+                .filter(item -> {
+                    String field = item.getItemField();
+                    return field == null || !field.contains("parent_id:");
+                })
+                .toList();
+    }
 }

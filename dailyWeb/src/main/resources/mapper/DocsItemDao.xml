@@ -107,5 +107,12 @@ item_Field = values(item_Field)
         delete from docs_item where `index` = #{index}
     </delete>
 
+    <!--根据父任务ID查询所有子任务-->
+    <select id="queryByParentId" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem">
+        select *
+        from docs_item
+        where item_Field like '%' || 'parent_id:' || #{parentId} || '%'
+    </select>
+
 </mapper>
 

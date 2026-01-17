@@ -102,89 +102,145 @@ public  class ItemEditService implements baseService,PlanService {
         return true;
     }
 
+    // ==================== PlanService 实现 ====================
 
     @Override
-    public boolean CheckList(UpdateCheckListDto params) {
-        DocsItem docsItem = mdRepository.selectDocsItem(params.getIndex());
-        if (docsItem==null){
-            log.error("未找到该条目");
-            return false;
-
-        }
+    public boolean setParentTask(Long taskId, Long parentId) {
         try {
-            Map<String, String> map = DocsItemFiled.toMap(docsItem.getItemField());
-            map.put(DocsItemFiled.ItemFiled.title.getFiled(), params.getTitle());
-            String filed = DocsItemFiled.toFiled(map);
-            mdRepository.updateField(docsItem.getIndex(),filed );
-        }catch (ClassNotFoundException e){
-            log.error("不支持的属性");
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean CheckListFinish(Long id) {
-        DocsItem docsItem = mdRepository.selectDocsItem(id);
-        if (docsItem==null){
-            log.error("未找到该条目");
-            return false;
-        }
-        try {
-            Map<String, String> map = DocsItemFiled.toMap(docsItem.getItemField());
-            map.put(DocsItemFiled.ItemFiled.status.getFiled(), "true");
-            String filed = DocsItemFiled.toFiled(map);
-            mdRepository.updateField(docsItem.getDocsId(),filed);
-        }catch (ClassNotFoundException e){
-            log.error("不支持的属性");
-            return false;
-        }
-        return true;
-    }
-
-
-    @Override
-    public boolean CheckListToday(Long id) {
-        DocsItem docsItem = mdRepository.selectDocsItem(id);
-        if (docsItem==null){
-            log.error("未找到该条目");
-            return false;
-        }
-        try {
-            Map<String, String> map = DocsItemFiled.toMap(docsItem.getItemField());
-
-            if (map.containsKey(DocsItemFiled.ItemFiled.time_point.getFiled())){
-//                如果存在时间点属性，我们认为这个条目是PlanI
-                map.put(DocsItemFiled.ItemFiled.status.getFiled(), "true");
-                String filed = DocsItemFiled.toFiled(map);
-                mdRepository.updateField(docsItem.getDocsId(),filed);
-            }else {
-//                如果不存在，则是Plan_II,在content添加一个数据     [当前时间戳]
-                String itemContent = docsItem.getItemContent();
-                //以\n分割item内容，填入一个set保证不重复
-                Set<String> set = new HashSet<>();
-                String[] itemContentArray = itemContent.split("\n");
-                for (String s : itemContentArray) {
-                    if (!s.isEmpty()){
-                        set.add(s);
-                    }
-                }
-                //添加时间戳，时间精度为日级
-                String time = new SimpleDateFormat("yyyy-MM-dd").format(new Date()); //获取当前日期
-                set.add(time);
-                //将set转换为字符串，以\n分割
-                String content = String.join("\n", set);
-                docsItem.setItemContent(content);
-                mdRepository.updateItem(docsItem.getDocsId(),docsItem.getItemContent());
-
+            DocsItem task = mdRepository.selectDocsItem(taskId);
+            if (task == null) {
+                throw new AppException(ResponseCode.RESOURCE_NOT_FOUND);
             }
 
+            // 解析现有字段
+            Map<String, String> fieldMap = DocsItemFiled.toMap(task.getItemField());
 
-        }catch (ClassNotFoundException e){
-            log.error("不支持的属性");
+            // 设置或移除父任务ID
+            if (parentId == null) {
+                fieldMap.remove(DocsItemFiled.ItemFiled.parent_id.getFiled());
+            } else {
+                // 验证父任务是否存在
+                DocsItem parentTask = mdRepository.selectDocsItem(parentId);
+                if (parentTask == null) {
+                    throw new AppException(ResponseCode.RESOURCE_NOT_FOUND);
+                }
+                fieldMap.put(DocsItemFiled.ItemFiled.parent_id.getFiled(), String.valueOf(parentId));
+            }
+
+            // 更新字段
+            String newField = DocsItemFiled.toFiled(fieldMap);
+            mdRepository.updateField(taskId, newField);
+            return true;
+        } catch (Exception e) {
+            log.error("设置任务父级失败", e);
             return false;
         }
-        return true;
-
     }
+
+    @Override
+    public boolean updateTaskStatus(Long taskId, String status) {
+        try {
+            DocsItem task = mdRepository.selectDocsItem(taskId);
+            if (task == null) {
+                throw new AppException(ResponseCode.RESOURCE_NOT_FOUND);
+            }
+
+            // 解析现有字段
+            Map<String, String> fieldMap = DocsItemFiled.toMap(task.getItemField());
+
+            // 检查任务是否已被冻结（如果父任务已完成，子任务不能修改）
+            String currentStatus = fieldMap.get(DocsItemFiled.ItemFiled.task_status.getFiled());
+            if ("3".equals(currentStatus)) {
+                log.warn("任务已销毁，不能修改状态: taskId={}", taskId);
+                throw new AppException(ResponseCode.INVALID_STATUS);
+            }
+
+            // 验证状态值
+            if (!status.equals("1") && !status.equals("2") && !status.equals("3")) {
+                log.warn("状态值无效: taskId={}, status={}", taskId, status);
+                throw new AppException(ResponseCode.INVALID_STATUS);
+            }
+
+            // 更新状态
+            fieldMap.put(DocsItemFiled.ItemFiled.task_status.getFiled(), status);
+            String newField = DocsItemFiled.toFiled(fieldMap);
+            mdRepository.updateField(taskId, newField);
+
+            // 如果任务状态为完成，将所有子任务设置为销毁状态
+            if ("1".equals(status)) {
+                freezeChildrenTasks(taskId);
+            }
+
+            return true;
+        } catch (Exception e) {
+            log.error("更新任务状态失败", e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateTaskScore(Long taskId, String score) {
+        try {
+            DocsItem task = mdRepository.selectDocsItem(taskId);
+            if (task == null) {
+                throw new AppException(ResponseCode.RESOURCE_NOT_FOUND);
+            }
+
+            // 解析现有字段
+            Map<String, String> fieldMap = DocsItemFiled.toMap(task.getItemField());
+
+            // 验证评分范围（1-5或1-10）
+            try {
+                int scoreValue = Integer.parseInt(score);
+                if (scoreValue < 1 || scoreValue > 10) {
+                    log.warn("评分范围无效: taskId={}, score={}", taskId, score);
+                    throw new AppException(ResponseCode.INVALID_PARAM);
+                }
+            } catch (NumberFormatException e) {
+                log.warn("评分格式错误: taskId={}, score={}", taskId, score);
+                throw new AppException(ResponseCode.INVALID_PARAM);
+            }
+
+            // 更新评分
+            fieldMap.put(DocsItemFiled.ItemFiled.score.getFiled(), score);
+            String newField = DocsItemFiled.toFiled(fieldMap);
+            mdRepository.updateField(taskId, newField);
+            return true;
+        } catch (Exception e) {
+            log.error("更新任务评分失败", e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean finishTask(Long taskId) {
+        try {
+            return updateTaskStatus(taskId, "1");
+        } catch (Exception e) {
+            log.error("完成任务失败", e);
+            return false;
+        }
+    }
+
+    /**
+     * 冻结子任务（将所有子任务设置为销毁状态）
+     * @param parentId 父任务ID
+     */
+    private void freezeChildrenTasks(Long parentId) {
+        List<DocsItem> children = mdRepository.getChildrenByParentId(parentId);
+        for (DocsItem child : children) {
+            try {
+                Map<String, String> fieldMap = DocsItemFiled.toMap(child.getItemField());
+                fieldMap.put(DocsItemFiled.ItemFiled.task_status.getFiled(), "3"); // 销毁状态
+                String newField = DocsItemFiled.toFiled(fieldMap);
+                mdRepository.updateField(child.getIndex(), newField);
+
+                // 递归冻结子任务的子任务
+                freezeChildrenTasks(child.getIndex());
+            } catch (Exception e) {
+                log.error("冻结子任务失败: {}", child.getIndex(), e);
+            }
+        }
+    }
+
 }

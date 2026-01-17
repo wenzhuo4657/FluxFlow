@@ -59,7 +59,9 @@ public class TypesRepository implements ITypesRepository {
 
     @Override
     public List<Docs> getDocsIdByTypeId(Long userId, Long typeId) {
-        List<Docs> list = userAuthDao.queryByUserIdAndtypeId(userId, typeId);
+//        todo  暂时不让userAuth表生效
+        List<Docs> list = docsDao.queryByUserIdAndtypeId(userId, typeId);
+//        List<Docs> list = userAuthDao.queryByUserIdAndtypeId(userId, typeId);
         return list;
     }
 

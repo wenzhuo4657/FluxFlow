@@ -8,26 +8,39 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * 规划任务集相关服务接口
+ */
 public interface PlanService {
 
+    /**
+     * 设置任务父级
+     * @param taskId 任务ID
+     * @param parentId 父任务ID（如果为null则取消父级）
+     * @return 是否成功
+     */
+    boolean setParentTask(Long taskId, Long parentId);
 
     /**
-     * 更新title
+     * 更新任务状态
+     * @param taskId 任务ID
+     * @param status 状态（1-完成，2-待做，3-销毁）
+     * @return 是否成功
      */
-    public boolean CheckList(UpdateCheckListDto params);
+    boolean updateTaskStatus(Long taskId, String status);
 
     /**
-     * 更新状态为完成(彻底完成，无论是PLan_I、还是Plan_II)
+     * 更新任务评分
+     * @param taskId 任务ID
+     * @param score 评分
+     * @return 是否成功
      */
-    public boolean CheckListFinish(Long  id);
-
+    boolean updateTaskScore(Long taskId, String score);
 
     /**
-     * 标记当日完成
-     * 如果是PLan_I，则是彻底完成
-     * 如果是Plan_II,则是当天记录完成
+     * 完成任务（会将所有子任务设置为销毁状态）
+     * @param taskId 任务ID
+     * @return 是否成功
      */
-    public boolean CheckListToday(Long  id);
-
-
+    boolean finishTask(Long taskId);
 }

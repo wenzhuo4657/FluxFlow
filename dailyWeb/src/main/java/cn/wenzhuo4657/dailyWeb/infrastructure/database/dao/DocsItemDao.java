@@ -77,5 +77,12 @@ public interface DocsItemDao {
     DocsItem queryByIndex(@Param("index") Long id);
 
     void delete(@Param("index")Long index);
+
+    /**
+     * 根据父任务ID查询所有子任务
+     * @param parentId 父任务的index
+     * @return 子任务列表
+     */
+    List<DocsItem> queryByParentId(@Param("parentId") Long parentId);
 }
 

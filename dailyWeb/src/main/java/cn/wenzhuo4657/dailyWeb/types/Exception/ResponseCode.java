@@ -26,7 +26,11 @@ public enum ResponseCode {
 
     UnsupportedType(501,"不支持的类型"),
 
-    DATABASE_VERSION_ERROR(510,"传入数据库版本过高");
+    DATABASE_VERSION_ERROR(510,"传入数据库版本过高"),
+
+    INVALID_STATUS(405,"状态无效或操作不允许"),
+
+    INVALID_PARAM(406,"参数无效");
 
 
     private String info;

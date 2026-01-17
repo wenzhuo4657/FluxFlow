@@ -18,6 +18,7 @@ public class AppException extends RuntimeException{
         this.info = responseCode.getInfo();
     }
 
+
     public Integer getCode() {
         return code;
     }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.awt.print.Pageable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public    class TypeStrategyImpl implements TypeStrategy {
     @Override
     public String toFiled(int type) throws ClassNotFoundException {
         DocsItemType.ItemType itemType  = router(type);
-        return TypeFunction.toField.toField(itemType,null);
+        return TypeFunction.toField.toField(itemType,new HashMap<>());
     }
 
     @Override

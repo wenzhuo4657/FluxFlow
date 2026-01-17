@@ -50,7 +50,8 @@ public class ItemController {
                     response.setContent(item.getContent());
                     response.setExpand(item.getExpand());
                     return response;
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
         log.info("userID: {}    getItems response:   size={} ",AuthUtils.getLoginId(),collect.size());
         return ResponseEntity.ok(ApiResponse.success(collect));
     }
@@ -66,6 +67,22 @@ public class ItemController {
         log.info("userID: {}    insertItem response:{} ",AuthUtils.getLoginId(),ok);
         if (ok)
         return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
+    }
+
+    @PostMapping("/insertWithFields")
+    public ResponseEntity<ApiResponse> insertItemWithFields(@Valid @RequestBody InsertItemWithFieldsRequest request) {
+        log.info("userID: {}    insertItemWithFields request:{} ",AuthUtils.getLoginId(),request);
+        InsertItemDto body = new InsertItemDto();
+        body.setDocsId(Long.valueOf(request.getDocsId()));
+        body.setType(request.getType());
+        boolean ok = itemEditService.insertItem_II(body, AuthUtils.getLoginId(), request.getFields());
+
+        log.info("userID: {}    insertItemWithFields response:{} ",AuthUtils.getLoginId(),ok);
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
         else {
             return ResponseEntity.ok(ApiResponse.error());
         }
@@ -98,15 +115,17 @@ public class ItemController {
         }
     }
 
-    @PostMapping("/field/checklist/title")
-    public ResponseEntity<ApiResponse> updateChecklist(@Valid @RequestBody UpdateCheckListRequest request) {
-        log.info("userID: {}    updateChecklist request:{} ",AuthUtils.getLoginId(),request);
 
-        UpdateCheckListDto body = new UpdateCheckListDto();
-        body.setIndex(Long.valueOf(request.getIndex()));
-        body.setTitle(request.getTitle());
-        boolean ok = itemEditService.CheckList(body);
-        log.info("userID: {}    updateChecklist response:{} ",AuthUtils.getLoginId(),ok);
+
+    @PostMapping("/task/setParent")
+    /**
+     * 将这个接口改为初始化PlanI item的接口
+     */
+    public ResponseEntity<ApiResponse> setParentTask(@RequestParam("taskId") Long taskId,
+                                                      @RequestParam(value = "parentId", required = false) Long parentId) {
+        log.info("userID: {}    setParentTask request: taskId={}, parentId={}", AuthUtils.getLoginId(), taskId, parentId);
+        boolean ok = itemEditService.setParentTask(taskId, parentId);
+        log.info("userID: {}    setParentTask response: {}", AuthUtils.getLoginId(), ok);
         if (ok)
             return ResponseEntity.ok(ApiResponse.success());
         else {
@@ -114,13 +133,37 @@ public class ItemController {
         }
     }
 
-    @PostMapping("field/checklist/finish")
-    public ResponseEntity<ApiResponse> finishChecklist(@Valid @RequestBody FinishChecklistRequest request) {
-        log.info("userID: {}    finishChecklist request:{} ",AuthUtils.getLoginId(),request);
-        Long id = Long.valueOf(request.getId());
-        boolean ok = itemEditService.CheckListFinish(id);
+    @PostMapping("/task/updateStatus")
+    public ResponseEntity<ApiResponse> updateTaskStatus(@RequestParam("taskId") Long taskId,
+                                                         @RequestParam("status") String status) {
+        log.info("userID: {}    updateTaskStatus request: taskId={}, status={}", AuthUtils.getLoginId(), taskId, status);
+        boolean ok = itemEditService.updateTaskStatus(taskId, status);
+        log.info("userID: {}    updateTaskStatus response: {}", AuthUtils.getLoginId(), ok);
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
+    }
 
-        log.info("userID: {}    finishChecklist response:{} ",AuthUtils.getLoginId(),ok);
+    @PostMapping("/task/updateScore")
+    public ResponseEntity<ApiResponse> updateTaskScore(@RequestParam("taskId") Long taskId,
+                                                        @RequestParam("score") String score) {
+        log.info("userID: {}    updateTaskScore request: taskId={}, score={}", AuthUtils.getLoginId(), taskId, score);
+        boolean ok = itemEditService.updateTaskScore(taskId, score);
+        log.info("userID: {}    updateTaskScore response: {}", AuthUtils.getLoginId(), ok);
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
+    }
+
+    @PostMapping("/task/finish")
+    public ResponseEntity<ApiResponse> finishTask(@RequestParam("taskId") Long taskId) {
+        log.info("userID: {}    finishTask request: taskId={}", AuthUtils.getLoginId(), taskId);
+        boolean ok = itemEditService.finishTask(taskId);
+        log.info("userID: {}    finishTask response: {}", AuthUtils.getLoginId(), ok);
         if (ok)
             return ResponseEntity.ok(ApiResponse.success());
         else {

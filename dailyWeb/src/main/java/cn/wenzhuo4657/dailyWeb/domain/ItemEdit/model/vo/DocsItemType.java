@@ -8,33 +8,27 @@ public   class   DocsItemType{
 
 //        根据ItemType生成对应的Filed属性
 
-        private static DocsItemFiled.ItemFiled[] Daily_Base_Field=
+        public static DocsItemFiled.ItemFiled[] Daily_Base_Field=
                 new DocsItemFiled.ItemFiled[]{ DocsItemFiled.ItemFiled.data
         };
 
-        private static DocsItemFiled.ItemFiled[] Plan_I_Field=
+        public static DocsItemFiled.ItemFiled[] Plan_I_Field=
                 new DocsItemFiled.ItemFiled[]{
-             DocsItemFiled.ItemFiled.status,
-             DocsItemFiled.ItemFiled.time_point,
-             DocsItemFiled.ItemFiled.title
-        };
-
-        private static  DocsItemFiled.ItemFiled[] Plan_II_Field=
-                new DocsItemFiled.ItemFiled[]{
-             DocsItemFiled.ItemFiled.status,
+             DocsItemFiled.ItemFiled.task_status,
+             DocsItemFiled.ItemFiled.parent_id,
+             DocsItemFiled.ItemFiled.score,
              DocsItemFiled.ItemFiled.data_start,
              DocsItemFiled.ItemFiled.data_end,
              DocsItemFiled.ItemFiled.title
         };
 
-        private static  DocsItemFiled.ItemFiled[]  StickyNote_Field={};
+        public static  DocsItemFiled.ItemFiled[]  StickyNote_Field={};
 
 
         public  enum  ItemType{
             dailyBase("dailyBase", Daily_Base_Field,0),
             Plan_I("Plan_I", Plan_I_Field,1),
-            Plan_II("Plan_II", Plan_II_Field,2),
-            StickyNote("StickyNote",StickyNote_Field,3)
+            StickyNote("StickyNote",StickyNote_Field,2)
             ;
 
             ItemType(String typeName, DocsItemFiled.ItemFiled[] filed,int code) {

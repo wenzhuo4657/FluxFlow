@@ -77,5 +77,6 @@ public interface DocsDao {
 
     int deleteByDocsID(Long docsId);
 
+    List<Docs> queryByUserIdAndtypeId(@Param("userId") Long userId, @Param("typeId") Long typeId);
 }
 
