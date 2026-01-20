@@ -1,14 +1,16 @@
 package cn.wenzhuo4657.dailyWeb.tigger.http;
 
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.wenzhuo4657.dailyWeb.domain.auth.UserService;
 import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.RegisterByOauthDto;
 import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.UserDto;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.UserResponse;
 
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import cn.wenzhuo4657.dailyWeb.types.utils.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import me.zhyd.oauth.model.AuthCallback;
@@ -29,7 +31,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 @Controller(value = "oauth")
 @RequestMapping(value = "/api/oauth")
@@ -108,7 +109,8 @@ public class AuthController {
             log.info("GitHub 用户 {} 登录成功！", authUser.getUsername());
 
             try {
-                String token = StpUtil.getTokenValue();
+                String saToken = StpUtil.getTokenValue();
+                String accessToken = JwtUtils.genToken(user.getId());
                 // 将UserDto转换为UserResponse，id字段转为String
                 UserResponse userResponse = new UserResponse(
                         user.getId().toString(),
@@ -119,7 +121,8 @@ public class AuthController {
                         new ObjectMapper().writeValueAsString(userResponse),
                         StandardCharsets.UTF_8
                 );
-                response.sendRedirect(name+"/auth/callback?token=" + token + "&userInfo=" + userInfoJson);
+                // saToken作为refresh_token使用，accessToken作为短期访问token
+                response.sendRedirect(name + "/auth/callback?token=" + saToken + "&accessToken=" + accessToken + "&userInfo=" + userInfoJson);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -142,5 +145,16 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.ok(false);
         }
+    }
+
+    /**
+     * 刷新access token
+     */
+    @PostMapping("/refresh")
+    @SaCheckLogin
+    public ResponseEntity<ApiResponse<String>> refresh() {
+        log.info("用户 {} 刷新access token", AuthUtils.getLoginId());
+        return ResponseEntity.ok(ApiResponse.success(JwtUtils.genToken(AuthUtils.getLoginId())));
+
     }
 }

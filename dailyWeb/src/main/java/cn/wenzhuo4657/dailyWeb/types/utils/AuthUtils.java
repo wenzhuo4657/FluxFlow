@@ -14,6 +14,8 @@ public class AuthUtils {
      * @return
      */
     public static Long getLoginId(){
+
+//        替换为使用access token解析出登录id
         return Long.valueOf(StpUtil.getLoginId().toString());
     }
 

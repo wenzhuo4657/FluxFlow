@@ -68,7 +68,6 @@ public class TypeController {
 
     @RequestMapping(value = "/getContentIdsByTypes")
     public ResponseEntity<ApiResponse<List<DocsResponse>>> getTypesWithItems(@Valid @RequestBody GetContentIdsByTypesRequest request) {
-
         log.info("userID:{} getContentIdsByTypes request:{}", AuthUtils.getLoginId(),request);
         Long typeId = Long.valueOf(request.getId());
         List<DocsDto> docsDtos = typesService.getContentNameIdById(typeId, AuthUtils.getLoginId());

@@ -22,6 +22,8 @@ public enum ResponseCode {
 
     NOT_LOGIN(401,"未登录、token无效，请重新登录"),
 
+    ACCESS_TOKEN_INVALID(410, "ACCESS_TOKEN无效或已过期"),
+
     programmingError(500,"未知错误"),
 
     UnsupportedType(501,"不支持的类型"),

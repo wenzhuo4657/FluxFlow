@@ -34,4 +34,11 @@ public class AppException extends RuntimeException{
                 ", info='" + info + '\'' +
                 '}';
     }
+
+    @Override
+    public String getMessage() {
+        return toString();
+    }
+
+
 }
