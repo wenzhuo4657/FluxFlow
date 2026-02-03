@@ -50,4 +50,6 @@ public interface IItemEditRepository {
     List<DocsItem> getDocsItemsByDocsIds(@Param("docsIds") List<Long> docsIds);
 
     Docs getDocs(Long docsId);
+
+    Long queryTypeByDocsId(Long docsId);
 }

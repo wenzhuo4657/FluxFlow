@@ -61,6 +61,11 @@ public class ItemEditRepository implements IItemEditRepository {
     }
 
     @Override
+    public Long queryTypeByDocsId(Long docsId) {
+        return docsDao.queryTypeByDocsId(docsId);
+    }
+
+    @Override
     public boolean addItem(DocsItem docs) {
         docsItemDao.insert(docs);
         return true;

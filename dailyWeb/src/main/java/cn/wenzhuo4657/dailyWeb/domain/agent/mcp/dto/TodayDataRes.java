@@ -1,24 +1,24 @@
-package cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto;
+package cn.wenzhuo4657.dailyWeb.domain.agent.mcp.dto;
 
+import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.ItemDto;
+import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.TodayItemDto;
+
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-public class PreViewDto {
+public class TodayDataRes implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private List<TodayItemDto> baseItem;
 
     private List<ItemDto> planItem;
 
-
-    public PreViewDto(List<TodayItemDto> baseItem, List<ItemDto> planItem) {
+    public TodayDataRes(List<TodayItemDto> baseItem, List<ItemDto> planItem) {
         this.baseItem = baseItem;
         this.planItem = planItem;
     }
-
-    public PreViewDto() {
-    }
-
-
     public List<TodayItemDto> getBaseItem() {
         return baseItem;
     }
@@ -31,18 +31,15 @@ public class PreViewDto {
         return planItem;
     }
 
-    @Override
-    public String toString() {
-        return "PreViewDto{" +
-                "baseItem=" + baseItem +
-                ", planItem=" + planItem +
-                '}';
+    public void setPlanItem(List<ItemDto> planItem) {
+        this.planItem = planItem;
     }
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PreViewDto that = (PreViewDto) o;
+        TodayDataRes that = (TodayDataRes) o;
         return Objects.equals(baseItem, that.baseItem) && Objects.equals(planItem, that.planItem);
     }
 
@@ -51,7 +48,11 @@ public class PreViewDto {
         return Objects.hash(baseItem, planItem);
     }
 
-    public void setPlanItem(List<ItemDto> planItem) {
-        this.planItem = planItem;
+    @Override
+    public String toString() {
+        return "TodayDataRes{" +
+                "baseItem=" + baseItem +
+                ", planItem=" + planItem +
+                '}';
     }
 }

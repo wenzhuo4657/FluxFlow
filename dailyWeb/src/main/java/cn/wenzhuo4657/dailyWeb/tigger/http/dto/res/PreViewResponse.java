@@ -1,17 +1,18 @@
 package cn.wenzhuo4657.dailyWeb.tigger.http.dto.res;
 
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.ItemDto;
+import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.TodayItemDto;
 
 import java.util.List;
 
 public class PreViewResponse {
 
 
-    private List<ItemDto> baseItem;
+    private List<TodayItemDto> baseItem;
 
     private List<ItemDto> planItem;
 
-    public PreViewResponse(List<ItemDto> baseItem, List<ItemDto> planItem) {
+    public PreViewResponse(List<TodayItemDto> baseItem, List<ItemDto> planItem) {
         this.baseItem = baseItem;
         this.planItem = planItem;
     }
@@ -19,11 +20,12 @@ public class PreViewResponse {
     public PreViewResponse() {
     }
 
-    public List<ItemDto> getBaseItem() {
+
+    public List<TodayItemDto> getBaseItem() {
         return baseItem;
     }
 
-    public void setBaseItem(List<ItemDto> baseItem) {
+    public void setBaseItem(List<TodayItemDto> baseItem) {
         this.baseItem = baseItem;
     }
 

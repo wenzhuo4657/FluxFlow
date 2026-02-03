@@ -105,6 +105,18 @@ public  class ItemEditService implements baseService,PlanService {
 
     }
 
+
+    @Override
+    public List<ItemDto> getItem(Long docsId) {
+        try {
+            List<DocsItem> docsItems = mdRepository.getDocsItems(docsId);
+            Long type=mdRepository.queryTypeByDocsId(docsId);
+            return  strategy.apply(type, docsItems);
+        }catch (ClassNotFoundException e){
+            throw  new AppException(ResponseCode.MISSING_CREDENTIALS);
+        }
+    }
+
     @Override
     public boolean deleteItem(long index) {
         mdRepository.deleteItem(index);
@@ -291,7 +303,7 @@ public  class ItemEditService implements baseService,PlanService {
         List<Docs> baseDocs = typesRepository.getDocsIdByTypeId(userId, DocsItemType.ItemType.dailyBase.getCode());
         List<Long> baseDocIds = baseDocs.stream().map(Docs::getDocsId).toList();
         List<DocsItem> baseItems = mdRepository.getDocsItemsByDocsIds(baseDocIds);
-        List<ItemDto> baseDtos = filterTodayBaseItems(baseItems, today);
+        List<TodayItemDto> baseDtos = filterTodayBaseItems(baseItems, today);
 
         // 3. 获取并处理计划任务 (Plan_I, code=1)
         List<Docs> planDocs = typesRepository.getDocsIdByTypeId(userId, DocsItemType.ItemType.Plan_I.getCode());
@@ -309,7 +321,7 @@ public  class ItemEditService implements baseService,PlanService {
      * @param today 今日日期 (yyyy-MM-dd)
      * @return 当日的日报项DTO列表
      */
-    private List<ItemDto> filterTodayBaseItems(List<DocsItem> items, String today) {
+    private List<TodayItemDto> filterTodayBaseItems(List<DocsItem> items, String today) {
         return items.stream()
                 .filter(item -> {
                     try {
@@ -322,19 +334,16 @@ public  class ItemEditService implements baseService,PlanService {
                     }
                 })
                 .map(item -> {
-                    try {
-                        ItemDto itemDto = strategy.apply(DocsItemType.ItemType.dailyBase.getCode(), List.of(item)).get(0);
-                        itemDto.setIndex(String.valueOf(item.getDocsId()));// 这里使用docsId,而非itemId
+
+                        TodayItemDto todayItemDto = new TodayItemDto();
+                        todayItemDto.setDocsId(String.valueOf(item.getDocsId()));
+                        todayItemDto.setIndex(item.getIndex());
+                        todayItemDto.setContent(item.getItemContent());
                         Docs docs=mdRepository.getDocs(item.getDocsId());
-                        itemDto.setTitle(docs.getName());
-                        return itemDto;
-                    } catch (ClassNotFoundException e) {
-                        log.error("转换基本日报项失败", e);
-                        return null;
-                    }
+                        todayItemDto.setName(docs.getName());
+                        return todayItemDto;
                 })
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(ItemDto::getIndex))
                 .toList();
     }
 

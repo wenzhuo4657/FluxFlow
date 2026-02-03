@@ -33,6 +33,11 @@ public interface baseService {
      */
     List<ItemDto> getItem(QueryItemDto dto);
 
+    /**
+     * 获取item
+     */
+    List<ItemDto> getItem(Long DocsId);
+
     boolean deleteItem(long index);
 
 

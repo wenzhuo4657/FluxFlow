@@ -14,7 +14,7 @@ dir:
 
 spring:
   profiles:
-    active: dev
+    active: dev,ai
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.sqlite.JDBC
@@ -59,7 +59,7 @@ sa-token:
 
 
 email:
-  enable: false
+  enable: true
 
 
 

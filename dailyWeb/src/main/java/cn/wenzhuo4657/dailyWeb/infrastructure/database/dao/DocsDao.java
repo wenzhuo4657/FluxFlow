@@ -80,5 +80,7 @@ public interface DocsDao {
     List<Docs> queryByUserIdAndtypeId(@Param("userId") Long userId, @Param("typeId") Long typeId);
 
     Docs queryByDocsId(@Param("docsId") Long docsId);
+
+    Long queryTypeByDocsId(@Param("docsId")Long docsId);
 }
 
