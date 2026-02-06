@@ -61,19 +61,11 @@ public class AuthRepository  implements IAuthRepository {
 
     private void initUser(User user){
 
-//        todo 用户初始化的同时初始化文档，待优化，不同文档的初始化
+
         List<DocsType> all = docsTypeDao.getAll();
+
+        //        todo   放弃初始化， 由于后续无法调衡权限，暂时不让UserAuth 表生效，
         for (DocsType docsType : all){
-            Docs docs = new Docs();
-            docs.setName("default");
-            docs.setTypeId(docsType.getTypeId());
-            docs.setDocsId(SnowflakeUtils.getSnowflakeId());
-            docs.setCreateTime(simpleDateFormat.format(new Date()));
-            docs.setUpdateTime(simpleDateFormat.format(new Date()));
-            docs.setUserId(user.getUserId());
-            docsDao.insert(docs);
-
-
 
             UserAuth userAuth = new UserAuth();
             userAuth.setUserId(user.getUserId());

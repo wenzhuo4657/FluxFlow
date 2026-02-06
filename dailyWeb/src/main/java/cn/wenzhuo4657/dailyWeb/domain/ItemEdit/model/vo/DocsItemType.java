@@ -8,36 +8,30 @@ public   class   DocsItemType{
 
 //        根据ItemType生成对应的Filed属性
 
-        private static DocsItemFiled.ItemFiled[] Daily_Base_Field=
+        public static DocsItemFiled.ItemFiled[] Daily_Base_Field=
                 new DocsItemFiled.ItemFiled[]{ DocsItemFiled.ItemFiled.data
         };
 
-        private static DocsItemFiled.ItemFiled[] Plan_I_Field=
+        public static DocsItemFiled.ItemFiled[] Plan_I_Field=
                 new DocsItemFiled.ItemFiled[]{
-             DocsItemFiled.ItemFiled.status,
-             DocsItemFiled.ItemFiled.time_point,
-             DocsItemFiled.ItemFiled.title
-        };
-
-        private static  DocsItemFiled.ItemFiled[] Plan_II_Field=
-                new DocsItemFiled.ItemFiled[]{
-             DocsItemFiled.ItemFiled.status,
+             DocsItemFiled.ItemFiled.task_status,
+             DocsItemFiled.ItemFiled.parent_id,
+             DocsItemFiled.ItemFiled.score,
              DocsItemFiled.ItemFiled.data_start,
              DocsItemFiled.ItemFiled.data_end,
              DocsItemFiled.ItemFiled.title
         };
 
-        private static  DocsItemFiled.ItemFiled[]  StickyNote_Field={};
+        public static  DocsItemFiled.ItemFiled[]  StickyNote_Field={};
 
 
         public  enum  ItemType{
-            dailyBase("dailyBase", Daily_Base_Field,0),
-            Plan_I("Plan_I", Plan_I_Field,1),
-            Plan_II("Plan_II", Plan_II_Field,2),
-            StickyNote("StickyNote",StickyNote_Field,3)
+            dailyBase("dailyBase", Daily_Base_Field,0l),
+            Plan_I("Plan_I", Plan_I_Field,1l),
+            StickyNote("StickyNote",StickyNote_Field,2l)
             ;
 
-            ItemType(String typeName, DocsItemFiled.ItemFiled[] filed,int code) {
+            ItemType(String typeName, DocsItemFiled.ItemFiled[] filed,Long code) {
                 this.typeName = typeName;
                 this.filed = filed;
                 this.code=code;
@@ -46,9 +40,9 @@ public   class   DocsItemType{
             private String typeName;
 
             private DocsItemFiled.ItemFiled[] filed;
-            private int code;
+            private Long code;
 
-            public static ItemType valueOfByCode(int type) throws ClassNotFoundException {
+            public static ItemType valueOfByCode(long type) throws ClassNotFoundException {
                 for (ItemType item : ItemType.values()) {
                     if (item.getCode() == type) {
                         return item;
@@ -57,11 +51,11 @@ public   class   DocsItemType{
                 throw new ClassNotFoundException("No enum constant " + type);
             }
 
-            public int getCode() {
+            public Long getCode() {
                 return code;
             }
 
-            public void setCode(int code) {
+            public void setCode(Long code) {
                 this.code = code;
             }
 

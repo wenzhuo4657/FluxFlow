@@ -18,11 +18,11 @@ public interface TypeStrategy {
     /**
      * 初始化field属性
      */
-    String toFiled(int type)throws ClassNotFoundException;
-    String toFiled(int type, Map<String,String> fieldMap)throws ClassNotFoundException;
+    String toFiled(Long type)throws ClassNotFoundException;
+    String toFiled(Long type, Map<String,String> fieldMap)throws ClassNotFoundException;
 
 
-    List<ItemDto>  apply(int type  , List<DocsItem> item) throws ClassNotFoundException;
+    List<ItemDto>  apply(Long type  , List<DocsItem> item) throws ClassNotFoundException;
 
 
 

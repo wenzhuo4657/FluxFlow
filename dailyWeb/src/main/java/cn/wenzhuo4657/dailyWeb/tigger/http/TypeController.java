@@ -12,6 +12,7 @@ import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.GetContentIdsByTypesRequest;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.DocsResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.TypeResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +40,16 @@ public class TypeController {
 
 
     @RequestMapping(value = "/getAllTypes")
-    public ResponseEntity<ApiResponse<List<TypeResponse>>> getAllTypes() {
-        log.info("userID:{}", AuthUtils.getLoginId());
-        List<TypeDto> typeDtos = typesService.getAllTypes(AuthUtils.getLoginId());
+    public ResponseEntity<ApiResponse<List<TypeResponse>>> getAllTypes(HttpServletRequest request) {
+        Long loginId = AuthUtils.getLoginId(request);
+        log.info("userID:{}", loginId);
+        List<TypeDto> typeDtos = typesService.getAllTypes(loginId);
         List<TypeResponse> collect = typeDtos.stream()
                 .filter(
                         dto->{
 
 //                            这个类型不用展示，在其他地方直接使用
-                            if (dto.getId().intValue()==DocsItemType.ItemType.StickyNote.getCode()){
+                            if (dto.getId().equals(DocsItemType.ItemType.StickyNote.getCode())){
                                 return false;
                             }
                             return  true;
@@ -61,46 +63,48 @@ public class TypeController {
         ApiResponse<List<TypeResponse>> listApiResponse = ApiResponse.success();
         listApiResponse.setData(collect);
 
-        log.info("userID:{}getAllTypes response:{}", AuthUtils.getLoginId(),collect);
+        log.info("userID:{}getAllTypes response:{}", loginId,collect);
         return ResponseEntity.ok(listApiResponse);
     }
 
 
     @RequestMapping(value = "/getContentIdsByTypes")
-    public ResponseEntity<ApiResponse<List<DocsResponse>>> getTypesWithItems(@Valid @RequestBody GetContentIdsByTypesRequest request) {
-
-        log.info("userID:{} getContentIdsByTypes request:{}", AuthUtils.getLoginId(),request);
+    public ResponseEntity<ApiResponse<List<DocsResponse>>> getTypesWithItems(@Valid @RequestBody GetContentIdsByTypesRequest request, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID:{} getContentIdsByTypes request:{}", loginId, request);
         Long typeId = Long.valueOf(request.getId());
-        List<DocsDto> docsDtos = typesService.getContentNameIdById(typeId, AuthUtils.getLoginId());
+        List<DocsDto> docsDtos = typesService.getContentNameIdById(typeId, loginId);
         List<DocsResponse> docsResponses = docsDtos.stream()
                 .map(dto -> new DocsResponse(dto.getId().toString(), dto.getName()))
                 .collect(Collectors.toList());
         ApiResponse<List<DocsResponse>> listApiResponse = ApiResponse.success();
         listApiResponse.setData(docsResponses);
 
-        log.info("userID:{}getContentIdsByTypes response:{}", AuthUtils.getLoginId(),docsResponses);
+        log.info("userID:{}getContentIdsByTypes response:{}", loginId, docsResponses);
         return ResponseEntity.ok(listApiResponse);
     }
 
     @RequestMapping(value = "/addDocs")
-    public ResponseEntity<ApiResponse<Boolean>> addDocs(@Valid @RequestBody AddDocsRequest request) {
-        log.info("userID:{} addDocs request:{}", AuthUtils.getLoginId(), request);
+    public ResponseEntity<ApiResponse<Boolean>> addDocs(@Valid @RequestBody AddDocsRequest request, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID:{} addDocs request:{}", loginId, request);
         Long typeId = Long.valueOf(request.getTypeId());
-        boolean result = typesService.addDocs(typeId, AuthUtils.getLoginId(), request.getDocsName());
+        boolean result = typesService.addDocs(typeId, loginId, request.getDocsName());
         ApiResponse<Boolean> apiResponse = ApiResponse.success();
         apiResponse.setData(result);
-        log.info("userID:{} addDocs response:{}", AuthUtils.getLoginId(), result);
+        log.info("userID:{} addDocs response:{}", loginId, result);
         return ResponseEntity.ok(apiResponse);
     }
 
     @RequestMapping(value = "/deleteDocs")
-    public ResponseEntity<ApiResponse<Boolean>> deleteDocs(@Valid @RequestBody DeleteDocsRequest request) {
-        log.info("userID:{} deleteDocs request:{}", AuthUtils.getLoginId(), request);
+    public ResponseEntity<ApiResponse<Boolean>> deleteDocs(@Valid @RequestBody DeleteDocsRequest request, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID:{} deleteDocs request:{}", loginId, request);
         Long docsId = Long.valueOf(request.getDocsId());
-        boolean result = typesService.deleteDocs(docsId, AuthUtils.getLoginId());
+        boolean result = typesService.deleteDocs(docsId, loginId);
         ApiResponse<Boolean> apiResponse = ApiResponse.success();
         apiResponse.setData(result);
-        log.info("userID:{} deleteDocs response:{}", AuthUtils.getLoginId(), result);
+        log.info("userID:{} deleteDocs response:{}", loginId, result);
         return ResponseEntity.ok(apiResponse);
     }
 

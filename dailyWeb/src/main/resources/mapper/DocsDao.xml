@@ -63,6 +63,20 @@ id, name, type_id, create_time, update_time, docs_id, user_id
         where  docs_id = #{docsId}
 
     </select>
+    <select id="queryByUserIdAndtypeId"  resultMap="DocsMap">
+            select * from docs
+        where user_id = #{userId}
+        and type_id = #{typeId}
+        </select>
+    <select id="queryByDocsId" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs">
+        select * from docs
+        where  docs_id=#{docsId}
+    </select>
+    <select id="queryTypeByDocsId" resultType="java.lang.Long">
+
+            select type_id from docs
+        where  docs_id=#{docsId}
+        </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">

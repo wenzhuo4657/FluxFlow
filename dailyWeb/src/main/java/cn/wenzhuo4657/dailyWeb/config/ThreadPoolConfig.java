@@ -15,7 +15,9 @@ public class ThreadPoolConfig {
     @Bean("MyExecutor")
     public Executor myExecutor(){
         ThreadPoolTaskExecutor1 executor1 = new ThreadPoolTaskExecutor1();
-        executor1.setThreadNamePrefix("myExecutor-");
         return executor1;
     }
+
+
+
 }

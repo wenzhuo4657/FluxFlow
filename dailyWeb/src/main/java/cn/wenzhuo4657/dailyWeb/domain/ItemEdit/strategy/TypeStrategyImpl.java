@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.awt.print.Pageable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,26 +21,26 @@ import java.util.Map;
 public    class TypeStrategyImpl implements TypeStrategy {
 
 
-    protected DocsItemType.ItemType router(int type) throws ClassNotFoundException {
+    protected DocsItemType.ItemType router(Long type) throws ClassNotFoundException {
         return DocsItemType.ItemType.valueOfByCode(type);
     }
 
 
 
     @Override
-    public String toFiled(int type) throws ClassNotFoundException {
+    public String toFiled(Long type) throws ClassNotFoundException {
         DocsItemType.ItemType itemType  = router(type);
-        return TypeFunction.toField.toField(itemType,null);
+        return TypeFunction.toField.toField(itemType,new HashMap<>());
     }
 
     @Override
-    public String toFiled(int type, Map<String, String> fieldMap) throws ClassNotFoundException {
+    public String toFiled(Long type, Map<String, String> fieldMap) throws ClassNotFoundException {
         DocsItemType.ItemType itemType  = router(type);
         return TypeFunction.toField.toField(itemType,fieldMap);
     }
 
     @Override
-    public List<ItemDto> apply(int type, List<DocsItem> items) throws ClassNotFoundException {
+    public List<ItemDto> apply(Long type, List<DocsItem> items) throws ClassNotFoundException {
         DocsItemType.ItemType itemType  = router(type);
 
         List<ItemDto> list=new ArrayList<>(items.size());

@@ -5,7 +5,9 @@ import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.*;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.*;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.GetItemsResponse;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.PreViewResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +33,9 @@ public class ItemController {
     private ItemEditService itemEditService;
 
     @PostMapping("/get")
-    public ResponseEntity<ApiResponse<List<GetItemsResponse>>> getItems(@Valid @RequestBody GetItemsRequest params) {
-        log.info("userID: {}    getItems params:{}",AuthUtils.getLoginId(),params);
+    public ResponseEntity<ApiResponse<List<GetItemsResponse>>> getItems(@Valid @RequestBody GetItemsRequest params, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    getItems params:{}", loginId, params);
         Long docsId = Long.valueOf(params.getDocsId());
         int type = params.getType();
 
@@ -50,20 +53,22 @@ public class ItemController {
                     response.setContent(item.getContent());
                     response.setExpand(item.getExpand());
                     return response;
-                }).collect(Collectors.toList());
-        log.info("userID: {}    getItems response:   size={} ",AuthUtils.getLoginId(),collect.size());
+                })
+                .collect(Collectors.toList());
+        log.info("userID: {}    getItems response:   size={} ", loginId, collect.size());
         return ResponseEntity.ok(ApiResponse.success(collect));
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<ApiResponse> insertItem(@Valid @RequestBody InsertItemRequest request) {
-        log.info("userID: {}    insertItem request:{} ",AuthUtils.getLoginId(),request);
+    public ResponseEntity<ApiResponse> insertItem(@Valid @RequestBody InsertItemRequest request, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    insertItem request:{} ", loginId, request);
         InsertItemDto body = new InsertItemDto();
         body.setDocsId(Long.valueOf(request.getDocsId()));
-        body.setType(Integer.valueOf(request.getType()));
-        boolean ok = itemEditService.insertItem(body, AuthUtils.getLoginId());
+        body.setType(Long.valueOf(request.getType()));
+        boolean ok = itemEditService.insertItem(body, loginId);
 
-        log.info("userID: {}    insertItem response:{} ",AuthUtils.getLoginId(),ok);
+        log.info("userID: {}    insertItem response:{} ", loginId, ok);
         if (ok)
         return ResponseEntity.ok(ApiResponse.success());
         else {
@@ -71,14 +76,32 @@ public class ItemController {
         }
     }
 
+    @PostMapping("/insertWithFields")
+    public ResponseEntity<ApiResponse> insertItemWithFields(@Valid @RequestBody InsertItemWithFieldsRequest request, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    insertItemWithFields request:{} ", loginId, request);
+        InsertItemDto body = new InsertItemDto();
+        body.setDocsId(Long.valueOf(request.getDocsId()));
+        body.setType(request.getType());
+        boolean ok = itemEditService.insertItem_II(body, loginId, request.getFields());
+
+        log.info("userID: {}    insertItemWithFields response:{} ", loginId, ok);
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
+    }
+
     @PostMapping("/update")
-    public ResponseEntity<ApiResponse> updateItem(@Valid @RequestBody UpdateItemRequest request) {
-        log.info("userID: {}    updateItem request:{} ",AuthUtils.getLoginId(),request);
+    public ResponseEntity<ApiResponse> updateItem(@Valid @RequestBody UpdateItemRequest request, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    updateItem request:{} ", loginId, request);
         UpdateItemDto body = new UpdateItemDto();
         body.setIndex(Long.valueOf(request.getIndex()));
         body.setContent(request.getContent());
         boolean ok = itemEditService.updateItem(body);
-        log.info("userID: {}    updateItem response:{} ",AuthUtils.getLoginId(),ok);
+        log.info("userID: {}    updateItem response:{} ", loginId, ok);
         if (ok)
             return ResponseEntity.ok(ApiResponse.success());
         else {
@@ -86,11 +109,12 @@ public class ItemController {
         }
     }
     @PostMapping("/delete")
-    public ResponseEntity<ApiResponse> deleteItem(@RequestParam("index") Long index) {
-        log.info("userID: {}    deleteItem request:{} ",AuthUtils.getLoginId(),index);
+    public ResponseEntity<ApiResponse> deleteItem(@RequestParam("index") Long index, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    deleteItem request:{} ", loginId, index);
         boolean ok = itemEditService.deleteItem(index);
 
-        log.info("userID: {}    deleteItem response:{} ",AuthUtils.getLoginId(),ok);
+        log.info("userID: {}    deleteItem response:{} ", loginId, ok);
         if (ok)
             return ResponseEntity.ok(ApiResponse.success());
         else {
@@ -98,15 +122,16 @@ public class ItemController {
         }
     }
 
-    @PostMapping("/field/checklist/title")
-    public ResponseEntity<ApiResponse> updateChecklist(@Valid @RequestBody UpdateCheckListRequest request) {
-        log.info("userID: {}    updateChecklist request:{} ",AuthUtils.getLoginId(),request);
 
-        UpdateCheckListDto body = new UpdateCheckListDto();
-        body.setIndex(Long.valueOf(request.getIndex()));
-        body.setTitle(request.getTitle());
-        boolean ok = itemEditService.CheckList(body);
-        log.info("userID: {}    updateChecklist response:{} ",AuthUtils.getLoginId(),ok);
+
+
+
+    @PostMapping("/task/update")
+    public ResponseEntity<ApiResponse> updateTask(@Valid @RequestBody UpdateTaskRequest request, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    updateTask request: {}", loginId, request);
+        boolean ok = itemEditService.updateTask(request.getTaskId(), request.getTaskStatus(), request.getScore());
+        log.info("userID: {}    updateTask response: {}", loginId, ok);
         if (ok)
             return ResponseEntity.ok(ApiResponse.success());
         else {
@@ -114,17 +139,41 @@ public class ItemController {
         }
     }
 
-    @PostMapping("field/checklist/finish")
-    public ResponseEntity<ApiResponse> finishChecklist(@Valid @RequestBody FinishChecklistRequest request) {
-        log.info("userID: {}    finishChecklist request:{} ",AuthUtils.getLoginId(),request);
-        Long id = Long.valueOf(request.getId());
-        boolean ok = itemEditService.CheckListFinish(id);
-
-        log.info("userID: {}    finishChecklist response:{} ",AuthUtils.getLoginId(),ok);
+    @PostMapping("/task/finish")
+    public ResponseEntity<ApiResponse> finishTask(@RequestParam("taskId") Long taskId, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    finishTask request: taskId={}", loginId, taskId);
+        boolean ok = itemEditService.finishTask(taskId);
+        log.info("userID: {}    finishTask response: {}", loginId, ok);
         if (ok)
             return ResponseEntity.ok(ApiResponse.success());
         else {
             return ResponseEntity.ok(ApiResponse.error());
         }
+    }
+
+    @PostMapping("/task/connectionBase")
+    public ResponseEntity<ApiResponse> connectionBase(@RequestParam("taskId") Long taskId, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    connectionBase request: taskId={}", loginId, taskId);
+        boolean ok = itemEditService.connectionBase(taskId, loginId);
+        log.info("userID: {}    connectionBase response: {}", loginId, ok);
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
+    }
+
+    @GetMapping("/today")
+    public ResponseEntity<ApiResponse<PreViewResponse>> queryUserByToday(HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    queryUserByToday request", loginId);
+        PreViewDto result = itemEditService.queryUserByToday(loginId);
+        log.info("userID: {}    queryUserByToday response: baseItemCount={}, planItemCount={}",
+                loginId, result.getBaseItem().size(), result.getPlanItem().size());
+        PreViewResponse response=new PreViewResponse(result.getBaseItem(),result.getPlanItem());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

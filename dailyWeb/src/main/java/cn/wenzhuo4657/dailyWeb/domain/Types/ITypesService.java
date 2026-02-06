@@ -17,7 +17,6 @@ public interface ITypesService {
      * 根据类型id获取相应用户的文档id
      */
     List<DocsDto> getContentNameIdById(Long typeId, Long userId);
-//    todo 这里要去思考用户初始化的内容，基本就是文档类型的权限和文档的初始化，但现在想想可能不需要？
 
 
     boolean addDocs(Long typeId, Long userId,String docsName);

@@ -36,7 +36,11 @@ public class DocsItemFiled {
         data_start("data_start","null","时间起点，与data_end成对表示，用于确定文档项的时间范围起点"),
         data_end("data_end","null","时间终点，与data_start成对表示，用于确定文档项的时间范围终点,null表示没有设置终点，即一直执行"),
 //         time_point的时间精度为分钟
-        time_point("time_point","null","时间点，用于确定文档项的时间范围起点或终点，精度为分钟")
+        time_point("time_point","null","时间点，用于确定文档项的时间范围起点或终点，精度为分钟"),
+        parent_id("parent_id","null","父任务ID，用于建立任务间的父子关系，仅任务集类型有效"),
+        connection("connection","null","连接的文档项ID，用于建立文档项之间的连接关系"),
+        task_status("task_status","2","任务状态：1-完成，2-待做，3-销毁（父任务完成或取消任务），仅任务集类型有效"),
+        score("score","null","任务评分，整数类型（1-5分或1-10分），仅任务集类型有效")
         ;
 
 
@@ -76,7 +80,7 @@ public class DocsItemFiled {
     public static Map<String,String> toFiled(ItemFiled[] itemFileds){
         Map<String,String> map =new HashMap<>();
         for (ItemFiled itemFiled : itemFileds) {
-            map.put(itemFiled.getFiled(),itemFiled.getFiled());
+            map.put(itemFiled.getFiled(),itemFiled.getDefault());
         }
         return map;
     }

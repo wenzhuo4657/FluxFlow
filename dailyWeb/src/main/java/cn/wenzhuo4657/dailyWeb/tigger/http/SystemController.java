@@ -5,6 +5,7 @@ import cn.wenzhuo4657.dailyWeb.Main;
 import cn.wenzhuo4657.dailyWeb.domain.system.service.SystemService;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,11 +107,12 @@ public class SystemController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ApiResponse> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<ApiResponse> uploadFile(@RequestParam("file") MultipartFile file, HttpServletRequest httpRequest) throws IOException {
         if (file == null || file.isEmpty()) {
             return ResponseEntity.ok().body(ApiResponse.error("文件不能为空"));
         }
-        log.info("userID: {},  文件名: {}", AuthUtils.getLoginId(), file.getOriginalFilename());
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {},  文件名: {}", loginId, file.getOriginalFilename());
 
         Path filePath = Main.getFilePath();
 
@@ -123,7 +125,7 @@ public class SystemController {
         File tempFile = temp.toFile();
 
         boolean reset = systemService.reset(tempFile);
-        log.info("userID: {}, 重置结果: {}", AuthUtils.getLoginId(), reset);
+        log.info("userID: {}, 重置结果: {}", loginId, reset);
         return ResponseEntity.ok().body(ApiResponse.success());
     }
 

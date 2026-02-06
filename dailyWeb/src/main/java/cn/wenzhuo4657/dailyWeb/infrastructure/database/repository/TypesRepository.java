@@ -3,11 +3,13 @@ package cn.wenzhuo4657.dailyWeb.infrastructure.database.repository;
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.TypeDto;
 import cn.wenzhuo4657.dailyWeb.domain.Types.repository.ITypesRepository;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsDao;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsItemDao;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsTypeDao;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.UserAuthDao;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsType;
 import cn.wenzhuo4657.dailyWeb.types.utils.SnowflakeUtils;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -30,6 +32,9 @@ public class TypesRepository implements ITypesRepository {
     private UserAuthDao userAuthDao;
     @Autowired
     private DocsDao docsDao;
+
+    @Autowired
+    private DocsItemDao docsItemDao;
 
     @Override
     public List<TypeDto> getAll(){
@@ -59,12 +64,14 @@ public class TypesRepository implements ITypesRepository {
 
     @Override
     public List<Docs> getDocsIdByTypeId(Long userId, Long typeId) {
-        List<Docs> list = userAuthDao.queryByUserIdAndtypeId(userId, typeId);
+//        todo  暂时不让userAuth表生效
+        List<Docs> list = docsDao.queryByUserIdAndtypeId(userId, typeId);
+//        List<Docs> list = userAuthDao.queryByUserIdAndtypeId(userId, typeId);
         return list;
     }
 
     @Override
-    public boolean addDocs(Long typeId, Long userId, String docsName) {
+    public Long addDocs(Long typeId, Long userId, String docsName) {
         try {
             Docs docs = new Docs();
             docs.setName(docsName);
@@ -76,12 +83,12 @@ public class TypesRepository implements ITypesRepository {
             int insert = docsDao.insert(docs);
             if (insert != 1) {
                 log.warn("添加文档发生超预期内容");
-                return false;
+                return null;
             }
-            return true;
+            return docs.getDocsId();
         }catch (Exception e){
             log.warn("添加文档发生异常",e);
-            return false;
+            return null;
         }
 
     }
@@ -103,5 +110,11 @@ public class TypesRepository implements ITypesRepository {
             log.warn("删除文档发生异常",e);
             return false;
         }
+    }
+
+    @Override
+    public boolean deleteAllItemByDocsId(Long docsId) {
+        return docsItemDao.deleteByDocsId(docsId);
+
     }
 }

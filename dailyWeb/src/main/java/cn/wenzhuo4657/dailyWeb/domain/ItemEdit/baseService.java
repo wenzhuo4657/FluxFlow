@@ -1,9 +1,6 @@
 package cn.wenzhuo4657.dailyWeb.domain.ItemEdit;
 
-import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.InsertItemDto;
-import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.ItemDto;
-import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.QueryItemDto;
-import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.UpdateItemDto;
+import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.*;
 
 import java.util.List;
 import java.util.Map;
@@ -32,8 +29,29 @@ public interface baseService {
 
     /**
      * 获取item
+     *
      */
     List<ItemDto> getItem(QueryItemDto dto);
 
+    /**
+     * 获取item
+     */
+    List<ItemDto> getItem(Long DocsId);
+
     boolean deleteItem(long index);
+
+
+    /**
+     * 获取预览item
+     */
+    PreViewDto queryUserByToday(Long userId);
+
+
+    /**
+     * 追加今日日报
+     * type限定为0
+     */
+    boolean tailAdd(Long index,String content);
+
+
 }

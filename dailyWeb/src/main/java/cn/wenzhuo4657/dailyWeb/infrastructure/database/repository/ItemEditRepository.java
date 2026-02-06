@@ -4,6 +4,7 @@ import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.UpdateItemDto;
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.repository.IItemEditRepository;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsDao;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsItemDao;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem;
 import cn.wenzhuo4657.dailyWeb.types.Exception.AppException;
 import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
@@ -60,6 +61,11 @@ public class ItemEditRepository implements IItemEditRepository {
     }
 
     @Override
+    public Long queryTypeByDocsId(Long docsId) {
+        return docsDao.queryTypeByDocsId(docsId);
+    }
+
+    @Override
     public boolean addItem(DocsItem docs) {
         docsItemDao.insert(docs);
         return true;
@@ -74,12 +80,41 @@ public class ItemEditRepository implements IItemEditRepository {
     public void updateField(Long id, String field) {
         DocsItem item=new DocsItem();
         item.setIndex(id);
-        item.setItemContent(field);
+        item.setItemField(field);
         docsItemDao.update(item);
     }
 
     @Override
     public void deleteItem(Long index) {
         docsItemDao.delete(index);
+    }
+
+    @Override
+    public List<DocsItem> getChildrenByParentId(Long parentId) {
+        return docsItemDao.queryByParentId(parentId);
+    }
+
+    @Override
+    public List<DocsItem> getTopLevelTasks(Long docsId) {
+        List<DocsItem> allTasks = docsItemDao.queryByDocsId(docsId);
+        return allTasks.stream()
+                .filter(item -> {
+                    String field = item.getItemField();
+                    return field == null || !field.contains("parent_id:");
+                })
+                .toList();
+    }
+
+    @Override
+    public List<DocsItem> getDocsItemsByDocsIds(List<Long> docsIds) {
+        if (docsIds == null || docsIds.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        return docsItemDao.queryByDocsIds(docsIds);
+    }
+
+    @Override
+    public Docs getDocs(Long docsId) {
+        return docsDao.queryByDocsId(docsId);
     }
 }

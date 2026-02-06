@@ -22,11 +22,17 @@ public enum ResponseCode {
 
     NOT_LOGIN(401,"未登录、token无效，请重新登录"),
 
+    ACCESS_TOKEN_INVALID(410, "ACCESS_TOKEN无效或已过期"),
+
     programmingError(500,"未知错误"),
 
     UnsupportedType(501,"不支持的类型"),
 
-    DATABASE_VERSION_ERROR(510,"传入数据库版本过高");
+    DATABASE_VERSION_ERROR(510,"传入数据库版本过高"),
+
+    INVALID_STATUS(405,"状态无效或操作不允许"),
+
+    INVALID_PARAM(406,"参数无效");
 
 
     private String info;
