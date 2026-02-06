@@ -36,7 +36,6 @@ public class JwtUtils {
      * 一旦客户端得知这个secret, 那就意味着客户端是可以自我签发jwt了。
      * 应该大于等于 256位(长度32及以上的字符串)，并且是随机的字符串
      *
-     * todo 目前是自动生成
      */
     private final static String SECRET = Jwts.SIG.HS256.key().build().toString();
     /**

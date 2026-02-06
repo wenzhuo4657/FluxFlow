@@ -119,7 +119,6 @@ public class SystemServiceImpl implements SystemService {
 
 
 
-//     todo 库表相同，但程序启动时的数据初始化不同，例如data.sql 、用户初始化
 
 
         return  true;
