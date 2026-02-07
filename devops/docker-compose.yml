@@ -67,8 +67,16 @@ services:
 volumes:
   dailyweb-data:
     driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: "${PWD}/data"
   dailyweb-logs:
     driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: "${PWD}/logs"
 
 networks:
   app-network:
