@@ -6,7 +6,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# 运行阶段 - 使用轻量级 JRE todo 基础镜像替换为notifier镜像
+# 运行阶段
 FROM jacka7732/notifierbot:1.0-snapshot
 LABEL maintainer="jacka7732"
 

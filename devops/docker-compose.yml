@@ -23,7 +23,7 @@ services:
         max-file: "3"
   # DailyWeb主服务
   dailyweb:
-    image: dailyweb:1.0-SNAPSHOT
+    image: jacka7732/fluxflow:2.0-beta
     container_name: dailyweb
     ports:
       - "8081:8081"
@@ -40,6 +40,7 @@ services:
       - AI_DASHSCOPE_API_KEY=${AI_DASHSCOPE_API_KEY}
       - tgBot=${TG_BOT}
       - chatId=${TG_CHAT_ID}
+      - HOST1=redis
     volumes:
       # SQLite数据库持久化
       - dailyweb-data:/app/data
