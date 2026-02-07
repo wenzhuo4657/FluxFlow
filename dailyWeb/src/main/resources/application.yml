@@ -74,3 +74,6 @@ traceID:
 notifierbot:
   # NotifierBot API 基础 URL，可通过环境变量 NOTIFIERBOT_BASE_URL 覆盖
   base-url: ${NOTIFIERBOT_BASE_URL:http://localhost:8089}
+  botToken: ${tgBot}
+  chatId: ${chatId:6550266873}
+

@@ -6,7 +6,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# 运行阶段 - 使用轻量级 JRE
+# 运行阶段 - 使用轻量级 JRE todo 基础镜像替换为notifier镜像
 FROM eclipse-temurin:17-jre
 LABEL maintainer="jacka7732"
 

@@ -5,14 +5,17 @@ import cn.wenzhuo4657.dailyWeb.infrastructure.adapter.notifier.ApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class NotifierService implements INotifierService {
 
     private static final Logger log = LoggerFactory.getLogger(NotifierService.class);
-    String botToken = System.getenv("tgBot");
-    String chatId = "6550266873";
+    @Value("${notifierbot.botToken}")
+    String botToken;
+    @Value("${notifierbot.chatId}")
+    String chatId;
 
     @Autowired
     private ApiService apiService;

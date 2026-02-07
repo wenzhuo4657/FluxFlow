@@ -49,7 +49,10 @@ public class SystemServiceImpl implements SystemService {
 
         try {
 //            1，加锁，数据库操作必须是串行进行，且注意，该锁为可重入锁
-            alock.tryLock(60, TimeUnit.SECONDS);
+            if (!alock.tryLock(60, TimeUnit.SECONDS)) {
+                log.error("获取锁超时");
+                return false;
+            }
             // 2，执行核心流程
 //            （1）获取当前数据库版本，导入数据库版本，（假定前者大于等于后者，如果后者大，则拒绝合并）
 //            （2）根据版本获取选择流程，若相同，直接覆盖合并，结束递归，若不相同，则进行临时数据版本升级操作
@@ -64,57 +67,64 @@ public class SystemServiceImpl implements SystemService {
                 String attachSql = "ATTACH DATABASE '" + tempFile.getAbsolutePath() + "' AS " + tempDatabaseName + ";";
                 stmt.execute(attachSql);
 
-                String versionsql="SELECT version FROM "+tempDatabaseName+".databaseversion order by id desc limit 1;";
-                ResultSet rs=stmt.executeQuery(versionsql);
-                String tempDatabaseVersion = rs.getString("version");
+                String versionSql = "SELECT version FROM " + tempDatabaseName + ".databaseversion ORDER BY id DESC LIMIT 1;";
+                // 使用 try-with-resources 确保 ResultSet 关闭
+                try (ResultSet rs = stmt.executeQuery(versionSql)) {
+                    if (!rs.next()) {
+                        throw new AppException(ResponseCode.DATABASE_VERSION_ERROR);
+                    }
+                    String tempDatabaseVersion = rs.getString("version");
 
+                    // 2，导入数据库版本校验，如果不一致，则进行版本兼容操作
+                    // 2.1，判断是否可以进行版本兼容操作
+                    DataBaseVersionVo main = DataBaseVersionVo.getEnumByVersion(mainDatabaseVersion);
+                    DataBaseVersionVo temp = DataBaseVersionVo.getEnumByVersion(tempDatabaseVersion);
+                    if (main.getCode() < temp.getCode()) {
+                        throw new AppException(ResponseCode.DATABASE_VERSION_ERROR);
+                    } else if (main.getCode() > temp.getCode()) {
+                        // 执行版本升级操作
+                        // todo 等待实现
+                        throw new AppException(ResponseCode.programmingError);
+                    } else {
+                        // 清除原表数据
+                        String deleteSql = main.getDeleteSql();
+                        ByteArrayResource deleteResource = new ByteArrayResource(deleteSql.getBytes(StandardCharsets.UTF_8));
+                        ScriptUtils.executeSqlScript(conn, deleteResource);
 
-//                2，导入数据库版本校验，如果不一致，则进行版本兼容操作
-
-                //                    2.1，判断是否可以进行版本兼容操作
-                DataBaseVersionVo main = DataBaseVersionVo.getEnumByVersion(mainDatabaseVersion);
-                DataBaseVersionVo temp = DataBaseVersionVo.getEnumByVersion(tempDatabaseVersion);
-                if (main.getCode()<temp.getCode()){
-                    throw  new AppException(ResponseCode.DATABASE_VERSION_ERROR);
-                }else if (main.getCode()>temp.getCode()){
-//                    执行版本升级操作
-//                    todo 等待实现
-                    throw  new AppException(ResponseCode.programmingError);
-                }else {
-
-
-//                    清除原表数据
-                    String deleteSql=main.getDeleteSql();
-                    ByteArrayResource deleteResource = new ByteArrayResource(deleteSql.getBytes(StandardCharsets.UTF_8));
-                    ScriptUtils.executeSqlScript(conn, deleteResource);
-
-//                    填充新表数据
-                    String insertSql=main.getInsertSql();
-                    ByteArrayResource insertResource = new ByteArrayResource(insertSql.getBytes(StandardCharsets.UTF_8));
-                    ScriptUtils.executeSqlScript(conn, insertResource);
+                        // 填充新表数据
+                        String insertSql = main.getInsertSql();
+                        ByteArrayResource insertResource = new ByteArrayResource(insertSql.getBytes(StandardCharsets.UTF_8));
+                        ScriptUtils.executeSqlScript(conn, insertResource);
+                    }
                 }
                 conn.commit(); // 提交事务
                 conn.close();
                 stmt.close();
 
-                // 重新创建Statement以避免锁定问题
-                try (Statement detachStmt = dataSource.getConnection().createStatement()) {
-                    detachStmt.execute("DETACH DATABASE " + tempDatabaseName + ";");
 
+
+                // 重新创建Statement以避免锁定问题，使用 try-with-resources 确保连接关闭
+                try (Connection detachConn = dataSource.getConnection();
+                     Statement detachStmt = detachConn.createStatement()) {
+                    detachStmt.execute("DETACH DATABASE " + tempDatabaseName + ";");
                 }
             } catch (Exception e) {
                 throw new RuntimeException("数据库导入失败", e);
-            }finally {
-
-                boolean delete = tempFile.delete();
-                System.out.println("删除临时文件：" + delete);
+            } finally {
+                boolean deleted = tempFile.delete();
+                log.info("删除临时文件：{}", deleted);
             }
 
 
-        }catch (InterruptedException e) {
-            log.error("排队超时",e);
-        }finally {
-            alock.unlock();
+        } catch (InterruptedException e) {
+            log.error("排队超时", e);
+            Thread.currentThread().interrupt(); // 恢复中断状态
+            return false;
+        } finally {
+            // 只在当前线程持有锁时才释放
+            if (alock.isHeldByCurrentThread()) {
+                alock.unlock();
+            }
         }
 
 
