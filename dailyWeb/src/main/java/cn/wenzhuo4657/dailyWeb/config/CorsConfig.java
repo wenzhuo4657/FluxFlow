@@ -9,6 +9,7 @@ import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
 import cn.wenzhuo4657.dailyWeb.types.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -53,13 +54,21 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addInterceptor(new SaInterceptor(handler -> {
                     // 直接检查请求方法，如果是OPTIONS就放行
 
+//            todo token异常无效
             try {
                 // 使用SaHolder获取请求信息
                 if (handler.getClass().getSimpleName().contains("PreFlight")) {
                     return; // OPTIONS预检请求直接放行
                 }
                 // 其他请求检查access token
-                String accessToken = SaHolder.getRequest().getHeader("ACCESS_TOKEN").replace("Bearer ", "").trim();;
+                String token = SaHolder.getRequest().getHeader("ACCESS_TOKEN");
+                log.info("token:{}",token);
+                if (StringUtils.isBlank(token)){
+                    log.error("token:{}",token);
+                    throw new AppException(ResponseCode.ACCESS_TOKEN_INVALID,"无传递Access Token");
+
+                }
+                String accessToken = token.replace("Bearer ", "").trim();;
                 if (accessToken == null || accessToken.isEmpty()) {
                     throw new AppException(ResponseCode.ACCESS_TOKEN_INVALID);
                 }

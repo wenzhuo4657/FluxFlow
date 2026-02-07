@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * 打印http请求和响应的header, 不包含实际数据，
  */
-//@Component
+@Component
 public class HeaderLoggingFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(HeaderLoggingFilter.class);
