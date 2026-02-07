@@ -7,7 +7,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # 运行阶段 - 使用轻量级 JRE todo 基础镜像替换为notifier镜像
-FROM eclipse-temurin:17-jre
+FROM jacka7732/notifierbot:1.0-snapshot
 LABEL maintainer="jacka7732"
 
 # 安装 wget 用于健康检查
