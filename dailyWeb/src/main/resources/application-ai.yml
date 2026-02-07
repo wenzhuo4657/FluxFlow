@@ -1,4 +1,6 @@
 # application.yml
+ai:
+  enable: true
 spring:
   ai:
     dashscope:

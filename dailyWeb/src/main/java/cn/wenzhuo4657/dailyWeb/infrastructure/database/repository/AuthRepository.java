@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -76,7 +77,17 @@ public class AuthRepository  implements IAuthRepository {
 
     }
 
+    @Override
+    public List<User> queryUser(List<String> userList) {
+        if (userList==null || userList.size()==0){
+            return List.of();
+        }
+        List<User> users = new ArrayList<>();
+        for (String userId : userList){
+            User user =userDao.queryByUserId(Long.valueOf(userId));
+            users.add(user);
+        }
 
-
-
+        return users;
+    }
 }

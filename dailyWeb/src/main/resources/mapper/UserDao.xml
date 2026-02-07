@@ -52,6 +52,9 @@ id, user_id, oauth_userId, oauth_provider, created_at, name, avatar_url
     <select id="queryByOauthId" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.User">
         select * from user where oauth_userId = #{oauthProviderUserId} and oauth_provider = #{oauthProvider}
     </select>
+    <select id="queryByUserId" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.User">
+        select * from user where user_id = #{userId}
+    </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">

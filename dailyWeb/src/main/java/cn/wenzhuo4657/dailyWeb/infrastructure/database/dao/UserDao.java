@@ -72,5 +72,7 @@ public interface UserDao {
     int deleteById(Long id);
 
     User queryByOauthId(@Param("oauthProvider") String oauthProvider, @Param("oauthProviderUserId") String oauthProviderUserId);
+
+    User queryByUserId(@Param("userId") Long userId);
 }
 

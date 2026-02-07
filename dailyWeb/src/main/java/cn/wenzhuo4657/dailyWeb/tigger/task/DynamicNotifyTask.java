@@ -7,6 +7,7 @@ import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.util.Collection;
 import java.util.Set;
 
 @Component
+@ConditionalOnProperty(name = "ai.enable", havingValue = "true")
 public class DynamicNotifyTask {
 
     private static final Logger log = LoggerFactory.getLogger(DynamicNotifyTask.class);

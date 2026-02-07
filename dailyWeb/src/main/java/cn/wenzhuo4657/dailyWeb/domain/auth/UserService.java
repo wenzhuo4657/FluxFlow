@@ -6,16 +6,23 @@ import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.RegisterByOauthDto;
 import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.UserDto;
 import cn.wenzhuo4657.dailyWeb.domain.auth.repository.IAuthRepository;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.User;
+import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
 import cn.wenzhuo4657.dailyWeb.types.utils.SnowflakeUtils;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public  class UserService  implements IUserService {
 
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private IAuthRepository authRepository;
 
@@ -54,5 +61,32 @@ public  class UserService  implements IUserService {
 
         set.add(System.currentTimeMillis(), userId);
 
+    }
+
+    @Override
+    public boolean logoutUser(long userId) {
+        try {
+            AuthUtils.logoutUser(userId);
+            return true;
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return false;
+        }
+
+    }
+
+    @Override
+    public List<UserDto> getOnlineUsers() {
+        List<String> userList = AuthUtils.getUserList();
+        List<User> users = authRepository.queryUser(userList);
+        List<UserDto> userDtos=new ArrayList<>();
+        for (User user:users){
+            UserDto dto = new UserDto();
+            dto.setUsername(user.getName());
+            dto.setAvatar(user.getAvatarUrl());
+            dto.setId(user.getUserId());
+            userDtos.add(dto);
+        }
+        return userDtos;
     }
 }

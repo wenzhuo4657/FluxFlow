@@ -51,7 +51,7 @@ public interface baseService {
      * 追加今日日报
      * type限定为0
      */
-    boolean tailAdd(Long index,String content);
+    boolean tailAdd(Long docsId,String content) throws ClassNotFoundException;
 
 
 }

@@ -4,6 +4,8 @@ import cn.wenzhuo4657.dailyWeb.domain.auth.model.aggregate.CheckUserByOauthAggre
 import cn.wenzhuo4657.dailyWeb.domain.auth.model.aggregate.RegisterAggregate;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.User;
 
+import java.util.List;
+
 public interface IAuthRepository {
     /**
      * 检查Oauth用户是否存在
@@ -18,4 +20,6 @@ public interface IAuthRepository {
      * @Exception 初始化失败
      */
     public User  initUser(RegisterAggregate user);
+
+    List<User> queryUser(List<String> userList);
 }

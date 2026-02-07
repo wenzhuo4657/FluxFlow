@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * 默认文档行为实现
@@ -411,8 +412,39 @@ public  class ItemEditService implements baseService,PlanService {
     }
 
     @Override
-    public boolean tailAdd(Long index, String content) {
+    public boolean tailAdd(Long docsId, String content) throws ClassNotFoundException {
+        content="\n"+content;
+        List<DocsItem> docsItems = mdRepository.getDocsItems(docsId);
+        String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        return false;
+        List<DocsItem> collect = docsItems.stream()
+                .filter(item -> {
+                    try {
+                        Map<String, String> fieldMap = DocsItemFiled.toMap(item.getItemField());
+                        String data = fieldMap.get(DocsItemFiled.ItemFiled.data.getFiled());
+                        return today.equals(data);
+                    } catch (ClassNotFoundException e) {
+                        log.warn("解析文档项字段失败, index={}", item.getIndex(), e);
+                        return false;
+                    }
+                }).collect(Collectors.toList());
+        if (collect.size()==1){
+            DocsItem item = collect.get(0);
+            mdRepository.updateItem(
+                    item.getIndex(), item.getItemContent()+content
+            );
+        }else {
+//            创建一个新文档
+            String filed = strategy.toFiled(DocsItemType.ItemType.dailyBase.getCode());
+            DocsItem item=new DocsItem();
+            item.setDocsId(docsId);
+            item.setItemField(filed);
+            item.setItemContent(content);
+            item.setIndex(SnowflakeUtils.getSnowflakeId());
+            return mdRepository.addItem(item);
+        }
+
+
+        return true;
     }
 }

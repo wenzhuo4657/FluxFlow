@@ -176,4 +176,17 @@ public class ItemController {
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @PostMapping("/tailadd")
+    public ResponseEntity<ApiResponse> tailAdd(@Valid @RequestBody TailAddRequest request, HttpServletRequest httpRequest) throws ClassNotFoundException {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    tailAdd request: {}", loginId, request);
+        boolean ok = itemEditService.tailAdd(Long.valueOf(request.getDocsId()), request.getContent());
+        log.info("userID: {}    tailAdd response: {}", loginId, ok);
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
+    }
 }
