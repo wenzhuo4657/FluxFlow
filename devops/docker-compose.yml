@@ -1,5 +1,5 @@
 services:
-  # Redis缓存服务 - 用于通知器缓存
+  # Redis缓存服务
   cache:
     image: redis:6.2.21-alpine
     container_name: some-redis
@@ -19,10 +19,10 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-  # DailyWeb主服务
-  dailyweb:
+  # FluxFlow主服务
+  fluxFlow:
     image: jacka7732/fluxflow:2.0-beta
-    container_name: dailyweb
+    container_name: fluxFlow
     ports:
       - "8081:8081"
     environment:
@@ -40,10 +40,7 @@ services:
       chatId: xxx
       HOST1: cache
     volumes:
-      # SQLite数据库持久化
-      - dailyweb-data:/app/data
-      # 日志持久化(可选)
-      - dailyweb-logs:/app/logs
+      - fluxFlow-data:/app/data
     networks:
       - app-network
     restart: unless-stopped
@@ -58,20 +55,32 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+  notifier:
+    image: jacka7732/notifierbot:1.0-snapshot
+    ports:
+      - "8089:8089"
+    environment:
+      HOST1: cache
+    volumes:
+        - notifier-data:/notifier/data
+    networks:
+      - app-network
+    restart: unless-stopped
 
 volumes:
-  dailyweb-data:
+  fluxFlow-data:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: "${PWD}/data"
-  dailyweb-logs:
+      device: "${PWD}/data/fluxFlow"
+  notifier-data:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: "${PWD}/logs"
+      device: "${PWD}/data/notifier"
+
 
 networks:
   app-network:

@@ -1,5 +1,5 @@
 # 构建阶段 - 使用 Maven 镜像
-FROM infotechsoft/maven:3.9.6-openjdk-17 AS builder
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /dailyWeb
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
@@ -7,7 +7,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # 运行阶段
-FROM jacka7732/notifierbot:1.0-snapshot
+FROM eclipse-temurin:17-jre
 LABEL maintainer="jacka7732"
 
 # 安装 wget 用于健康检查
@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # 创建数据和日志目录
-RUN mkdir -p /app/data/beifen /app/logs && chmod -R 755 /app
+RUN mkdir -p /app/data/beifen  && chmod -R 755 /app
 
 # 复制 jar 文件
 COPY --from=builder /dailyWeb/target/dailyWeb-2.0-beta.jar app.jar

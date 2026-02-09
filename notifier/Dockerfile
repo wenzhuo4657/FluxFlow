@@ -1,5 +1,5 @@
 # 构建阶段 - 使用 Maven 镜像
-FROM infotechsoft/maven:3.9.6-openjdk-17 AS builder
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
@@ -14,14 +14,14 @@ LABEL maintainer="jacka7732"
 RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
 # 设置工作目录
-WORKDIR /app
+WORKDIR /notifier
 
 # 复制 jar 文件
-COPY --from=builder /notifier/target/app-1.0-SNAPSHOT.jar app.jar
+COPY --from=builder /app/target/app-1.0-SNAPSHOT.jar  notifier.jar
 
 # 暴露端口
 EXPOSE 8089
 
-ENTRYPOINT ["sh","-c","java -jar $JAVA_OPTS app.jar"]
+ENTRYPOINT ["sh","-c","java -jar $JAVA_OPTS notifier.jar"]
 
 

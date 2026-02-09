@@ -35,9 +35,6 @@ public class HeaderLoggingFilter extends OncePerRequestFilter {
         ContentCachingRequestWrapper req = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper res = new ContentCachingResponseWrapper(response);
 
-//        TODO 这里没有打印mdc日志
-//        todo nginx传递token失败
-//        todo 挂在目录整理
         long start = System.currentTimeMillis();
         try {
             filterChain.doFilter(req, res);
