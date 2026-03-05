@@ -51,6 +51,8 @@ public class TypeFunction {
                     for (DocsItemFiled.ItemFiled itemFiled : DocsItemType.Daily_Base_Field) {
                         if (map.containsKey(itemFiled.getFiled())){
                             target.put(itemFiled.getFiled(),map.get(itemFiled.getFiled()));
+                        }else {
+                            target.put(itemFiled.getFiled(),itemFiled.getDefault());
                         }
                     }
                 }else {
@@ -64,6 +66,8 @@ public class TypeFunction {
                     for (DocsItemFiled.ItemFiled itemFiled : DocsItemType.Plan_I_Field) {
                         if (map.containsKey(itemFiled.getFiled())){
                             target.put(itemFiled.getFiled(),map.get(itemFiled.getFiled()));
+                        }else {
+                        target.put(itemFiled.getFiled(),itemFiled.getDefault());
                         }
                     }
                 }
@@ -73,6 +77,8 @@ public class TypeFunction {
                     for (DocsItemFiled.ItemFiled itemFiled : DocsItemType.StickyNote_Field) {
                         if (map.containsKey(itemFiled.getFiled())){
                             target.put(itemFiled.getFiled(),map.get(itemFiled.getFiled()));
+                        }else {
+                            target.put(itemFiled.getFiled(),itemFiled.getDefault());
                         }
                     }
                 }
