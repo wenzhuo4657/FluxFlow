@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluxFlow</title>
+    <style>
+      /* 去除全局的默认边距 */
+      body {
+      margin: 0;
+      padding: 0;
+      }
+
+
+      /* 定义在css中可以使用的变量 */
+    :root {
+      --cdn-url: url(%VITE_BACKGROUD%); /* 来自 .env 的VITE_BACKGROU */
+    }
+
+    </style>
+  </head>
+  <body>
+
+    <div id="app"></div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
