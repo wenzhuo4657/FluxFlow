@@ -89,10 +89,11 @@ public class EmailNotifier extends IAbstractNotifier<GmailConfig, NotifierMessag
     @Override
     public boolean isAvailable() {
         try {
-            NotifierMessage message = new NotifierMessage();
-            message.setTitle("Test Email");
-            message.setContent("This is a test email sent from the EmailNotifier.");
-            send(message);
+//            todo 暂时弃用测试，
+//            NotifierMessage message = new NotifierMessage();
+//            message.setTitle("Test Email");
+//            message.setContent("This is a test email sent from the EmailNotifier.");
+//            send(message);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
