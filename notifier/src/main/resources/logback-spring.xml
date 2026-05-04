@@ -37,7 +37,7 @@
         <appender name="All_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${log_dir}/All/app.log</file>
             <encoder charset="UTF-8">
-                <pattern>%cyan(%X{traceId}) %d{HH:mm:ss.SSS}  [%thread] %-5level %logger{36} - %msg%n</pattern>
+                <pattern>%X{traceId} %d{HH:mm:ss.SSS}  [%thread] %-5level %logger{36} - %msg%n</pattern>
             </encoder >
 
 <!--            滚动策略：
