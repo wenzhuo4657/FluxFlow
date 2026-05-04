@@ -1,0 +1,3 @@
+[submodule "dailyNotes-Front"]
+    path = dailyNotes-Front
+    url = https://github.com/wenzhuo4657/FluxFlow-Front
